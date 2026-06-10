@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boss Chess</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Arial, sans-serif;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+  gap: 14px;
+}
+
+#secret-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: #0d0d1a; border: 1px solid #1a1a1a;
+  border-radius: 8px; padding: 6px 14px;
+  width: 100%; max-width: 510px;
+}
+#secret-bar label { font-size: 11px; color: #1e1e1e; white-space: nowrap; }
+#secret-input {
+  background: transparent; border: none; outline: none;
+  color: #1e1e1e; font-size: 13px; font-family: monospace;
+  width: 60px; caret-color: transparent; letter-spacing: 4px;
+}
+#secret-input:focus { color: #333; }
+#secret-hint { font-size: 11px; color: #1a1a1a; margin-left: auto; transition: color 0.3s; }
+#secret-hint.active { color: #9F7FDD; }
+
+#ultra-banner {
+  display: none;
+  border: 1px solid #9F7FDD; border-radius: 8px;
+  padding: 10px 20px; text-align: center;
+  max-width: 510px; width: 100%;
+  background: #1a1030;
+}
+#ultra-banner.show { display: block; }
+#ultra-banner h2 { font-size: 15px; color: #d0b0ff; margin-bottom: 2px; }
+#ultra-banner p  { font-size: 11px; color: #888; }
+
+#header { text-align: center; }
+#header h1 { font-size: 26px; font-weight: 700; color: #f0d9b5; letter-spacing: 1px; margin-bottom: 4px; }
+#header p  { font-size: 13px; color: #666; }
+
+#status-bar {
+  background: #16213e; border: 1px solid #333; border-radius: 8px;
+  padding: 10px 24px; font-size: 14px; color: #f0d9b5;
+  min-width: 320px; max-width: 510px; width: 100%;
+  text-align: center; font-weight: 500;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(8, 58px);
+  grid-template-rows: repeat(8, 58px);
+  border: 3px solid #444; border-radius: 4px;
+  overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+.cell {
+  width: 58px; height: 58px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; cursor: pointer;
+  position: relative; user-select: none;
+}
+.cell.light { background: #f0d9b5; }
+.cell.dark  { background: #b58863; }
+.cell.selected    { background: #7fc97f !important; }
+.cell.last-move-a { background: #cdd16f !important; }
+.cell.last-move-b { background: #aaa23a !important; }
+.cell.valid-move::after {
+  content:''; position:absolute;
+  width:20px; height:20px;
+  background:rgba(0,0,0,0.22); border-radius:50%; pointer-events:none;
+}
+.cell.capture-move::after {
+  content:''; position:absolute;
+  width:54px; height:54px; border-radius:50%;
+  border:4px solid rgba(200,0,0,0.45); pointer-events:none;
+}
+.cell.swap-move::after {
+  content:''; position:absolute;
+  width:54px; height:54px; border-radius:50%;
+  border:4px solid rgba(100,100,255,0.55); pointer-events:none;
+}
+
+.piece {
+  width:52px; height:52px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%; font-size:26px;
+  position:relative; z-index:2;
+  transition: transform 0.1s;
+}
+.piece:hover { transform: scale(1.1); }
+.piece.white { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+.piece.black { filter: brightness(0.38) drop-shadow(0 2px 3px rgba(0,0,0,0.7)); }
+.piece.special-glow { filter: drop-shadow(0 0 7px #9F7FDD) brightness(1.15); }
+.piece.black.special-glow { filter: brightness(0.38) drop-shadow(0 0 6px #9F7FDD); }
+
+#panels {
+  display: flex; gap: 12px; max-width: 510px; width: 100%;
+  flex-wrap: wrap;
+}
+#cemetery-panel, #mimic-panel {
+  flex: 1; min-width: 200px;
+  background: #16213e; border: 1px solid #2a2a4a;
+  border-radius: 8px; padding: 10px 12px;
+}
+#cemetery-panel h3, #mimic-panel h3 {
+  font-size: 11px; color: #888; margin-bottom: 6px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+#cemetery-list, #mimic-status {
+  font-size: 12px; color: #aaa; min-height: 20px;
+}
+
+#legend {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; max-width: 510px; width: 100%;
+}
+.legend-card {
+  background: #16213e; border: 1px solid #2a2a4a;
+  border-radius: 8px; padding: 8px 12px; transition: border-color 0.15s;
+}
+.legend-card:hover { border-color: #9F7FDD; }
+.lc-top { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+.lc-icon { font-size:17px; }
+.lc-name { font-size:12px; font-weight:600; color:#f0d9b5; flex:1; }
+.lc-badge {
+  font-size:9px; padding:2px 7px; border-radius:9999px;
+  font-weight:600; background:#2e1e5e; color:#b09fe0;
+}
+.lc-badge.both { background:#1e3e1e; color:#80c080; }
+.lc-desc { font-size:10px; color:#777; line-height:1.4; }
+
+#controls { display:flex; gap:10px; }
+#controls button {
+  background:#16213e; border:1px solid #444; border-radius:8px;
+  color:#f0d9b5; padding:8px 20px; font-size:13px; cursor:pointer;
+  transition:background 0.15s, border-color 0.15s;
+}
+#controls button:hover { background:#1e2d54; border-color:#9F7FDD; }
+
+#tooltip {
+  position:fixed; background:#0f0f23; border:1px solid #3a3a6a;
+  border-radius:8px; padding:10px 14px; font-size:12px; color:#e0e0e0;
+  max-width:240px; z-index:9999; pointer-events:none; display:none;
+  line-height:1.6; box-shadow:0 4px 16px rgba(0,0,0,0.6);
+}
+#tooltip strong { font-size:13px; color:#f0d9b5; }
+.tt-owner { font-size:11px; color:#666; display:block; margin-bottom:4px; }
+.tt-special { color:#b09fe0; }
+#footer { font-size:11px; color:#333; text-align:center; }
+</style>
+</head>
+<body>
+
+<div id="secret-bar">
+  <label>▸</label>
+  <input id="secret-input" type="password" maxlength="4" autocomplete="off" placeholder="····" spellcheck="false">
+  <span id="secret-hint">——</span>
+</div>
+
+<div id="ultra-banner">
+  <h2>⚔️ ULTRA REJİM AÇILDİ</h2>
+  <p>İndi sən də xüsusi fiqurlarla oynayırsan!</p>
+</div>
+
+<div id="header">
+  <h1>👑 Boss Chess</h1>
+  <p id="header-sub">Normal daşlarla 7 xüsusi fiqurun üstündən qalib gəl</p>
+</div>
+
+<div id="status-bar">Sənin növbən — ağ daşlar</div>
+<div id="board"></div>
+
+<div id="panels">
+  <div id="cemetery-panel">
+    <h3>⚰️ Məzarlıq (qara piyadalar)</h3>
+    <div id="cemetery-list">—</div>
+  </div>
+  <div id="mimic-panel">
+    <h3>🎭 Mimic statusu</h3>
+    <div id="mimic-status">Normal (1 xana hər istiqamət)</div>
+  </div>
+</div>
+
+<div id="legend"></div>
+
+<div id="controls">
+  <button onclick="resetGame()">🔄 Yenidən başla</button>
+</div>
+
+<div id="footer">Siçanı fiqurun üstünə gətir — qaydanı gör</div>
+<div id="tooltip"></div>
+
+<script>
+// ── PIECE DEFINITIONS ──
+const PIECE_DEFS = {
+  K: { name:'Şah',      sym:'♔', special:false, desc:'Hər istiqamətə 1 xana.' },
+  Q: { name:'Vəzir',    sym:'♕', special:false, desc:'Hər istiqamətə istədiyi qədər.' },
+  R: { name:'Top',      sym:'♖', special:false, desc:'Üfüqi və şaquli hərəkət.' },
+  B: { name:'Fil',      sym:'♗', special:false, desc:'Çapraz hərəkət.' },
+  N: { name:'At',       sym:'♘', special:false, desc:'L fiquru ilə atlar.' },
+  P: { name:'Piyada',   sym:'♙', special:false, desc:'İrəliyə 1 (ilk addımda 2), çapraza vurur.' },
+
+  PH: { name:'Phantom',     sym:'👻', special:true,
+        desc:'Fil kimi çapraz gedir. Digər fiqurların içindən keçər. Şahı birbaşa vura bilmir.' },
+  NC: { name:'Necromancer', sym:'☠️', special:true,
+        desc:'1 xana hər istiqamətdə. Məhv olmuş öz piyadalarından birini lövhəyə qaytara bilər.' },
+  TP: { name:'Teleporter',  sym:'🌀', special:true,
+        desc:'Tam 2 xana uzağa teleportasiya. İçindən keçər. Şahı birbaşa vura bilmir.' },
+  AS: { name:'Assassin',    sym:'🗡️', special:true,
+        desc:'Tam 4-5 xana uzağa gedir. Vurduqda özü də silinir. Şahı birbaşa vura bilmir.' },
+  MM: { name:'Mimic',       sym:'🎭', special:true,
+        desc:'Adi halda 1 xana hər istiqamətdə. Fiqur vurduqda onun xüsusiyyətlərini mənimsəyir.' },
+  RH: { name:'Rhino',       sym:'🦏', special:true,
+        desc:'At + Fil birlikdə. Eyni anda iki figurun gücü!' },
+  BS: { name:'Backstabber', sym:'🔪', special:true,
+        desc:'2 xana uzaqdakı fiqurla yer dəyişər. Şahla yer dəyişə bilmir.' },
+};
+
+const ALL_SPECIAL = ['PH','NC','TP','AS','MM','RH','BS'];
+
+// ── STATE ──
+let board = [];
+let selected = null;
+let validMoves = [];
+let turn = 'white';
+let lastMove = null;
+let gameOver = false;
+let ultraMode = false;
+let cemetery = [];          // captured black pawns
+let mimicType = null;       // white mimic absorbed type
+let blackMimicType = null;  // black mimic absorbed type
+
+// ── SECRET CODE ──
+const secretInput = document.getElementById('secret-input');
+secretInput.addEventListener('input', () => {
+  if (secretInput.value === '2467') {
+    if (!ultraMode) { ultraMode = true; applyUltra(); }
+    secretInput.value = '';
+  }
+});
+function applyUltra() {
+  document.getElementById('secret-hint').textContent = '🔓 Ultra';
+  document.getElementById('secret-hint').classList.add('active');
+  document.getElementById('ultra-banner').classList.add('show');
+  document.getElementById('header-sub').textContent = 'Ultra rejim — hər iki tərəf tam silahlanıb!';
+  resetGame();
+}
+
+// ── RANDOM SPECIAL LAYOUT ──
+// Returns 8 random specials for a back row, k of them special, rest normal
+function randomBackRow(color, useSpecial) {
+  // Pick 3 random specials from ALL_SPECIAL (no repeats)
+  const shuffled = [...ALL_SPECIAL].sort(() => Math.random() - 0.5);
+  const picked = shuffled.slice(0, 3);
+  // Back row: R _ B Q K B _ R with 3 specials inserted at random interior spots
+  // We place: R, K fixed at edges/center; fill remaining with mix
+  // Positions 0-7: fix R at 0,7 and K at 4
+  // Remaining: 1,2,3,5,6 → 5 slots: fill with picked specials + normal pieces
+  const normals = ['Q','B','N','B','N'];
+  const interior = [...picked, ...normals.slice(0, 5 - picked.length)];
+  interior.sort(() => Math.random() - 0.5);
+  return [
+    'R', interior[0], interior[1], interior[2], 'K', interior[3], interior[4], 'R'
+  ];
+}
+
+function randomPawnRow(color, useSpecial) {
+  if (!useSpecial) return Array(8).fill('P');
+  // Insert 1-2 specials randomly in pawn row
+  const row = Array(8).fill('P');
+  const shuffled = [...ALL_SPECIAL].sort(() => Math.random() - 0.5);
+  const count = Math.floor(Math.random() * 2) + 1;
+  const positions = [1,2,3,4,5,6].sort(() => Math.random() - 0.5).slice(0, count);
+  positions.forEach((pos, i) => { row[pos] = shuffled[i]; });
+  return row;
+}
+
+// ── INIT BOARD ──
+function initBoard() {
+  board = Array(8).fill(null).map(() => Array(8).fill(null));
+  cemetery = [];
+  mimicType = null;
+  blackMimicType = null;
+
+  // Black: always has specials, random each game
+  const blackBack  = randomBackRow('black', true);
+  const blackPawns = randomPawnRow('black', true);
+  for (let c = 0; c < 8; c++) board[0][c] = { type: blackBack[c],  color: 'black' };
+  for (let c = 0; c < 8; c++) board[1][c] = { type: blackPawns[c], color: 'black' };
+
+  if (ultraMode) {
+    const whiteBack  = randomBackRow('white', true);
+    const whitePawns = randomPawnRow('white', true);
+    for (let c = 0; c < 8; c++) board[7][c] = { type: whiteBack[c],  color: 'white' };
+    for (let c = 0; c < 8; c++) board[6][c] = { type: whitePawns[c], color: 'white' };
+  } else {
+    // Normal: white has only standard pieces
+    const whiteBack  = ['R','N','B','Q','K','B','N','R'];
+    const whitePawns = Array(8).fill('P');
+    for (let c = 0; c < 8; c++) board[7][c] = { type: whiteBack[c],  color: 'white' };
+    for (let c = 0; c < 8; c++) board[6][c] = { type: whitePawns[c], color: 'white' };
+  }
+}
+
+// ── MOVE GENERATION ──
+function getMoves(row, col, forDisplay) {
+  const piece = board[row][col];
+  if (!piece) return [];
+  const moves = [];   // {r, c, swap, assassin, necro}
+  const enemy = piece.color === 'white' ? 'black' : 'white';
+  const ally  = piece.color;
+
+  // Effective type (mimic)
+  let eff = piece.type;
+  if (piece.type === 'MM') {
+    eff = (piece.color === 'white' ? mimicType : blackMimicType) || 'MM';
+  }
+
+  function add(r, c, meta={}) {
+    if (r<0||r>7||c<0||c>7) return false;
+    if (board[r][c]?.color === ally) return false;
+    // Cannot capture enemy King with special non-direct pieces
+    if (meta.noKing && board[r][c]?.type === 'K' && board[r][c]?.color === enemy) return false;
+    moves.push({ r, c, ...meta });
+    return !board[r][c];
+  }
+
+  function slide(dr, dc, throughPieces=false, noKing=false) {
+    let r=row+dr, c=col+dc;
+    while (r>=0&&r<=7&&c>=0&&c<=7) {
+      if (board[r][c]?.color===ally) { r+=dr; c+=dc; continue; }
+      if (board[r][c]?.color===enemy) {
+        if (noKing && board[r][c]?.type==='K') { if(!throughPieces) break; r+=dr;c+=dc;continue; }
+        moves.push({ r, c, noKing });
+        if (!throughPieces) break;
+      } else {
+        moves.push({ r, c });
+      }
+      r+=dr; c+=dc;
+    }
+  }
+
+  function knight() {
+    [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]
+      .forEach(([dr,dc]) => add(row+dr, col+dc));
+  }
+
+  switch (eff) {
+    case 'P': {
+      const dir   = piece.color==='white' ? -1 : 1;
+      const start = piece.color==='white' ? 6 : 1;
+      if (!board[row+dir]?.[col]) {
+        moves.push({r:row+dir, c:col});
+        if (row===start && !board[row+2*dir]?.[col]) moves.push({r:row+2*dir, c:col});
+      }
+      [-1,1].forEach(dc => {
+        if (board[row+dir]?.[col+dc]?.color===enemy) moves.push({r:row+dir, c:col+dc});
+      });
+      break;
+    }
+    case 'R': [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>slide(dr,dc)); break;
+    case 'B': [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc)); break;
+    case 'Q': [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc)); break;
+    case 'K': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc)); break;
+    case 'N': knight(); break;
+
+    case 'PH': // Ghost bishop — passes through, cannot capture King
+      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc,true,true));
+      break;
+
+    case 'NC': { // Necromancer — 1 step any + necro resurrect moves
+      [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc));
+      // Resurrect: show empty squares in own back area as necro targets
+      if (cemetery.length > 0) {
+        const backRow = piece.color==='white' ? 7 : 0; // resurrect on own back?
+        // Actually resurrect on any empty square adjacent
+        for (let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++) {
+          if(dr===0&&dc===0) continue;
+          const r2=row+dr, c2=col+dc;
+          if(r2>=0&&r2<=7&&c2>=0&&c2<=7&&!board[r2][c2])
+            moves.push({r:r2, c:c2, necro:true});
+        }
+      }
+      break;
+    }
+
+    case 'TP': // Teleporter — exactly 2 squares, through pieces, no King
+      for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++) {
+        if((Math.abs(dr)===2||Math.abs(dc)===2)&&(dr!==0||dc!==0)) {
+          const r2=row+dr, c2=col+dc;
+          if(r2<0||r2>7||c2<0||c2>7) continue;
+          if(board[r2][c2]?.color===ally) continue;
+          if(board[r2][c2]?.type==='K'&&board[r2][c2]?.color===enemy) continue;
+          moves.push({r:r2, c:c2});
+        }
+      }
+      break;
+
+    case 'AS': // Assassin — exactly 4 or 5 squares (Manhattan), kamikaze, no King
+      for(let r2=0;r2<8;r2++) for(let c2=0;c2<8;c2++) {
+        const dist=Math.abs(r2-row)+Math.abs(c2-col);
+        if(dist!==4&&dist!==5) continue;
+        if(board[r2][c2]?.color===ally) continue;
+        if(board[r2][c2]?.type==='K'&&board[r2][c2]?.color===enemy) continue;
+        if(board[r2][c2]?.color===enemy) moves.push({r:r2,c:c2,assassin:true});
+        else moves.push({r:r2,c:c2});
+      }
+      break;
+
+    case 'MM': // Default mimic — 1 step any direction
+      [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc));
+      break;
+
+    case 'RH': // Rhino — Knight + Bishop
+      knight();
+      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc));
+      break;
+
+    case 'BS': { // Backstabber — swap with piece 2 squares away, not King
+      for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++) {
+        if(Math.abs(dr)+Math.abs(dc)!==2) continue; // exactly 2 manhattan (no diag-diag)
+        // Actually: 2 squares in any direction (orthogonal or diagonal)
+        if(!(Math.abs(dr)===2&&dc===0)&&!(Math.abs(dc)===2&&dr===0)&&
+           !(Math.abs(dr)===1&&Math.abs(dc)===1)) continue; // hmm let's just do 2-step radius
+        const r2=row+dr, c2=col+dc;
+        if(r2<0||r2>7||c2<0||c2>7) continue;
+        if(!board[r2][c2]) continue; // must have a piece to swap
+        if(board[r2][c2]?.type==='K') continue; // not with King
+        moves.push({r:r2, c:c2, swap:true});
+      }
+      // Also fix: exact 2-square in 8 directions
+      break;
+    }
+  }
+
+  return moves;
+}
+
+// Fix Backstabber to use proper 2-square directions
+function getBackstabberMoves(row, col, piece) {
+  const moves = [];
+  const dirs = [[-2,0],[2,0],[0,-2],[0,2],[-2,-2],[-2,2],[2,-2],[2,2],[-1,-1],[-1,1],[1,-1],[1,1],[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+  // Use exact 2-step in 8 compass + knight-like? No — spec says "2 xana uzaqdakı kart"
+  // We interpret as Chebyshev distance = 2 (king moves twice)
+  for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++) {
+    const dist=Math.max(Math.abs(dr),Math.abs(dc));
+    if(dist!==2) continue;
+    const r2=row+dr, c2=col+dc;
+    if(r2<0||r2>7||c2<0||c2>7) continue;
+    if(!board[r2][c2]) continue;
+    if(board[r2][c2]?.type==='K') continue;
+    moves.push({r:r2, c:c2, swap:true});
+  }
+  return moves;
+}
+
+function getAllMoves(row, col) {
+  const piece = board[row][col];
+  if (!piece) return [];
+  let eff = piece.type;
+  if (piece.type === 'MM') eff = (piece.color==='white'?mimicType:blackMimicType) || 'MM';
+  if (eff === 'BS') return getBackstabberMoves(row, col, piece);
+  return getMoves(row, col);
+}
+
+// ── EXECUTE MOVE ──
+function doMove(fr, fc, tr, tc, moveMeta) {
+  const piece = board[fr][fc];
+  const target = board[tr][tc];
+
+  if (moveMeta?.swap) {
+    // Backstabber swap
+    board[fr][fc] = target;
+    board[tr][tc] = piece;
+    lastMove = [[fr,fc],[tr,tc]];
+    return;
+  }
+
+  if (moveMeta?.necro) {
+    // Necromancer resurrect
+    if (cemetery.length > 0) {
+      const revived = cemetery.pop();
+      board[tr][tc] = { type:'P', color: piece.color };
+      updateCemeteryUI();
+    }
+    lastMove = [[fr,fc],[tr,tc]];
+    return;
+  }
+
+  // Capture: track black pawns for cemetery
+  if (target) {
+    if (target.color==='black' && target.type==='P') cemetery.push('P');
+
+    // Mimic absorbs
+    if (piece.type==='MM') {
+      if (piece.color==='white') mimicType = target.type;
+      else blackMimicType = target.type;
+      updateMimicUI();
+    }
+  }
+
+  // Assassin kamikaze
+  if (moveMeta?.assassin && target) {
+    board[tr][tc] = null;
+    board[fr][fc] = null;
+    lastMove = [[fr,fc],[tr,tc]];
+    return;
+  }
+
+  board[tr][tc] = piece;
+  board[fr][fc] = null;
+  lastMove = [[fr,fc],[tr,tc]];
+}
+
+// ── AI ──
+function aiMove() {
+  if (gameOver) return;
+  const all = [];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    if(board[r][c]?.color==='black') {
+      getAllMoves(r,c).forEach(m=>all.push({fr:r,fc:c,...m}));
+    }
+  }
+  if(!all.length) return;
+
+  // Priority: capture > swap > normal
+  const captures = all.filter(m=>board[m.r][m.c]?.color==='white'&&!m.swap&&!m.necro);
+  const swaps    = all.filter(m=>m.swap);
+  const pool = captures.length ? captures : (swaps.length&&Math.random()>0.5?swaps:all);
+  const mv = pool[Math.floor(Math.random()*pool.length)];
+  doMove(mv.fr, mv.fc, mv.r, mv.c, mv);
+  checkEnd();
+  turn='white'; renderBoard(); updateStatus();
+}
+
+// ── END CHECK ──
+function checkEnd() {
+  const wK=board.flat().some(p=>p?.type==='K'&&p?.color==='white');
+  const bK=board.flat().some(p=>p?.type==='K'&&p?.color==='black');
+  if(!wK){gameOver=true;updateStatus('😈 Qalib: Qara! Boss qazandı!');}
+  if(!bK){gameOver=true;updateStatus('🏆 Qalib: Sən! Boss məğlub edildi!');}
+}
+
+// ── STATUS ──
+function updateStatus(msg) {
+  const bar=document.getElementById('status-bar');
+  if(msg){bar.textContent=msg;return;}
+  if(gameOver) return;
+  bar.textContent=turn==='white'?'⚪ Sənin növbən — ağ daşlar':'⚫ Rəqib düşünür...';
+}
+
+function updateCemeteryUI() {
+  const el=document.getElementById('cemetery-list');
+  el.textContent=cemetery.length?'♙ × '+cemetery.length+' (Necromancer qaytara bilər)':'—';
+}
+function updateMimicUI() {
+  const el=document.getElementById('mimic-status');
+  const wt=mimicType, bt=blackMimicType;
+  let txt='';
+  if(wt) txt+='Ağ Mimic: '+PIECE_DEFS[wt]?.name+' ';
+  if(bt) txt+='Qara Mimic: '+PIECE_DEFS[bt]?.name;
+  el.textContent=txt||'Normal (1 xana hər istiqamət)';
+}
+
+// ── CLICK ──
+function cellClick(r, c) {
+  if(gameOver||turn!=='white') return;
+  const piece=board[r][c];
+
+  if(selected) {
+    const mv=validMoves.find(m=>m.r===r&&m.c===c);
+    if(mv) {
+      doMove(selected[0],selected[1],r,c,mv);
+      selected=null; validMoves=[];
+      checkEnd();
+      if(!gameOver){turn='black';renderBoard();updateStatus();setTimeout(aiMove,750);return;}
+    } else {
+      selected=null; validMoves=[];
+      if(piece?.color==='white'){selected=[r,c];validMoves=getAllMoves(r,c);}
+    }
+  } else {
+    if(piece?.color==='white'){selected=[r,c];validMoves=getAllMoves(r,c);}
+  }
+  renderBoard();
+}
+
+// ── RENDER ──
+function renderBoard() {
+  const boardEl=document.getElementById('board');
+  boardEl.innerHTML='';
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    const cell=document.createElement('div');
+    cell.className='cell '+((r+c)%2===0?'light':'dark');
+    if(selected&&selected[0]===r&&selected[1]===c) cell.classList.add('selected');
+    if(lastMove){
+      const[[r1,c1],[r2,c2]]=lastMove;
+      if(r===r1&&c===c1) cell.classList.add('last-move-a');
+      if(r===r2&&c===c2) cell.classList.add('last-move-b');
+    }
+    if(validMoves.length) {
+      const mv=validMoves.find(m=>m.r===r&&m.c===c);
+      if(mv) {
+        if(mv.swap) cell.classList.add('swap-move');
+        else cell.classList.add(board[r][c]?'capture-move':'valid-move');
+      }
+    }
+    const piece=board[r][c];
+    if(piece) {
+      const pd=PIECE_DEFS[piece.type];
+      const span=document.createElement('div');
+      const isSpecial=pd.special;
+      span.className='piece '+piece.color+(isSpecial?' special-glow':'');
+      span.textContent=pd.sym;
+      cell.appendChild(span);
+    }
+    cell.addEventListener('click',()=>cellClick(r,c));
+    cell.addEventListener('mouseenter',(e)=>showTip(e,r,c));
+    cell.addEventListener('mouseleave',hideTip);
+    boardEl.appendChild(cell);
+  }
+  updateCemeteryUI();
+  updateMimicUI();
+}
+
+// ── TOOLTIP ──
+function showTip(e,r,c) {
+  const piece=board[r][c]; if(!piece){hideTip();return;}
+  const pd=PIECE_DEFS[piece.type];
+  const owner=piece.color==='white'?'Sənin fiqurın':'Rəqib fiquru';
+  const tt=document.getElementById('tooltip');
+  let extra='';
+  if(piece.type==='MM') {
+    const abs=piece.color==='white'?mimicType:blackMimicType;
+    extra=abs?`<br><span class="tt-special">Hazırda: ${PIECE_DEFS[abs]?.name} kimi oynayır</span>`:'';
+  }
+  tt.innerHTML=`<strong>${pd.sym} ${pd.name}</strong><span class="tt-owner">${owner}</span>${pd.special?'<span class="tt-special">✦ Xüsusi — </span>':''}${pd.desc}${extra}`;
+  tt.style.display='block';
+  tt.style.left=(e.clientX+16)+'px';
+  tt.style.top=(e.clientY-8)+'px';
+}
+function hideTip(){document.getElementById('tooltip').style.display='none';}
+
+// ── LEGEND ──
+function renderLegend() {
+  const leg=document.getElementById('legend');
+  leg.innerHTML='';
+  // Show which specials are actually on the board
+  const onBoard=new Set();
+  board.flat().forEach(p=>{if(p&&PIECE_DEFS[p.type]?.special)onBoard.add(p.type);});
+  // Show all 7 special types always
+  ALL_SPECIAL.forEach(type=>{
+    const pd=PIECE_DEFS[type];
+    const active=onBoard.has(type);
+    const card=document.createElement('div');
+    card.className='legend-card';
+    card.style.opacity=active?'1':'0.45';
+    card.innerHTML=`
+      <div class="lc-top">
+        <span class="lc-icon">${pd.sym}</span>
+        <span class="lc-name">${pd.name}</span>
+        <span class="lc-badge${ultraMode?' both':''}">
+          ${active?(ultraMode?'Hər ikisi':'Lövhədə'):'Məğlub'}
+        </span>
+      </div>
+      <div class="lc-desc">${pd.desc}</div>`;
+    leg.appendChild(card);
+  });
+}
+
+// ── RESET ──
+function resetGame() {
+  selected=null; validMoves=[]; turn='white'; lastMove=null; gameOver=false;
+  cemetery=[]; mimicType=null; blackMimicType=null;
+  initBoard(); renderBoard(); renderLegend(); updateStatus();
+}
+
+// ── START ──
+resetGame();
+</script>
+</body>
+</html>
