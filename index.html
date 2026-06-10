@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boss Chess — Sirli Fiqurlarla Şahmat</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Arial, sans-serif;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  gap: 16px;
+}
+
+#header {
+  text-align: center;
+}
+#header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #f0d9b5;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+#header p {
+  font-size: 14px;
+  color: #888;
+}
+
+#status-bar {
+  background: #16213e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  color: #f0d9b5;
+  min-width: 320px;
+  text-align: center;
+  font-weight: 500;
+}
+
+#board-container {
+  position: relative;
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(8, 60px);
+  grid-template-rows: repeat(8, 60px);
+  border: 3px solid #444;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.cell {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  transition: background 0.1s;
+}
+.cell.light { background: #f0d9b5; }
+.cell.dark  { background: #b58863; }
+.cell.selected { background: #7fc97f !important; }
+
+.cell.valid-move::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  background: rgba(0,0,0,0.22);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.cell.capture-move::after {
+  content: '';
+  position: absolute;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 4px solid rgba(200,0,0,0.45);
+  pointer-events: none;
+}
+.cell.last-move-a { background: #cdd16f !important; }
+.cell.last-move-b { background: #aaa23a !important; }
+
+.piece {
+  width: 54px; height: 54px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 28px;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.1s;
+}
+.piece:hover { transform: scale(1.1); }
+.piece.white { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
+.piece.black { filter: brightness(0.35) drop-shadow(0 2px 3px rgba(0,0,0,0.7)); }
+.piece.mystery-glow {
+  font-size: 24px;
+  filter: drop-shadow(0 0 6px #9F7FDD) brightness(1.2);
+}
+.piece.black.mystery-glow {
+  filter: brightness(0.35) drop-shadow(0 0 6px #9F7FDD);
+}
+
+#legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  max-width: 490px;
+  width: 100%;
+}
+
+.legend-card {
+  background: #16213e;
+  border: 1px solid #2a2a4a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: default;
+  transition: border-color 0.15s;
+}
+.legend-card:hover { border-color: #9F7FDD; }
+.legend-card .lc-top {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 4px;
+}
+.legend-card .lc-icon { font-size: 20px; }
+.legend-card .lc-name {
+  font-size: 13px; font-weight: 600;
+  color: #f0d9b5;
+  flex: 1;
+}
+.legend-card .lc-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+  background: #2e1e5e;
+  color: #b09fe0;
+}
+.legend-card .lc-desc {
+  font-size: 11px;
+  color: #888;
+  line-height: 1.4;
+}
+
+#controls {
+  display: flex; gap: 10px;
+}
+#controls button {
+  background: #16213e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #f0d9b5;
+  padding: 8px 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+#controls button:hover {
+  background: #1e2d54;
+  border-color: #9F7FDD;
+}
+
+#tooltip {
+  position: fixed;
+  background: #0f0f23;
+  border: 1px solid #3a3a6a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #e0e0e0;
+  max-width: 230px;
+  z-index: 9999;
+  pointer-events: none;
+  display: none;
+  line-height: 1.6;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+}
+#tooltip strong {
+  font-size: 13px;
+  color: #f0d9b5;
+}
+#tooltip .tt-owner {
+  font-size: 11px;
+  color: #666;
+  display: block;
+  margin-bottom: 4px;
+}
+#tooltip .tt-mystery {
+  color: #b09fe0;
+}
+
+#footer {
+  font-size: 11px;
+  color: #444;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <h1>👑 Boss Chess</h1>
+  <p>Normal fiqurlarla 6 sirli fiqurun üstündən qalib gəl</p>
+</div>
+
+<div id="status-bar">Sənin növbən — ağ daşlar</div>
+
+<div id="board-container">
+  <div id="board"></div>
+</div>
+
+<div id="legend"></div>
+
+<div id="controls">
+  <button onclick="resetGame()">🔄 Yenidən başla</button>
+</div>
+
+<div id="footer">Siçanı fiqurun üstünə gətir — qaydanı gör</div>
+
+<div id="tooltip"></div>
+
+<script>
+const PIECES = {
+  K: { name: 'Şah',       sym: '♔', mystery: false, desc: 'Normal şah — hər istiqamətə 1 xana.' },
+  Q: { name: 'Vəzir',     sym: '♕', mystery: false, desc: 'Normal vəzir — hər istiqamətə istədiyindən hərəkət.' },
+  R: { name: 'Top',       sym: '♖', mystery: false, desc: 'Normal top — üfüqi və şaquli hərəkət.' },
+  B: { name: 'Fil',       sym: '♗', mystery: false, desc: 'Normal fil — çapraz hərəkət.' },
+  N: { name: 'At',        sym: '♘', mystery: false, desc: 'Normal at — L fiquru.' },
+  P: { name: 'Piyada',    sym: '♙', mystery: false, desc: 'Normal piyada — irəliyə 1 (başlanğıcda 2), çapraza vurur.' },
+
+  X: { name: 'Xaos Ruhu', sym: '☯', mystery: true,
+       desc: 'Həm at (L), həm fil kimi hərəkət edir. Eyni anda iki fiqur xüsusiyyəti!' },
+  Z: { name: 'Zəlzələ',   sym: '⚡', mystery: true,
+       desc: 'Bütün 8 istiqamətdə 1-3 xana hərəkət edir. Dayanmaq bilməz!' },
+  S: { name: 'Sehrbaz',   sym: '🌀', mystery: true,
+       desc: 'Özündən tam 2 xana uzaqdakı hər nöqtəyə atlayır (teleportasiya).' },
+  G: { name: 'Gigant',    sym: '🔱', mystery: true,
+       desc: 'Top + At birləşməsi. Hər ikisi kimi hərəkət edir.' },
+  W: { name: 'Külək',     sym: '🌪', mystery: true,
+       desc: 'Həm irəliyə, həm arxaya gedir. Çapraza 2 xana uzaqdan vura bilir.' },
+  V: { name: 'Vampir',    sym: '🦇', mystery: true,
+       desc: 'Fil kimi hərəkət edir. Yediyi fiqurun enerjisini udur.' },
+};
+
+let board = [];
+let selected = null;
+let validMoves = [];
+let turn = 'white';
+let lastMove = null;
+let gameOver = false;
+
+function initBoard() {
+  board = Array(8).fill(null).map(() => Array(8).fill(null));
+  const blackBack = ['R','X','B','Q','K','Z','S','R'];
+  for (let c = 0; c < 8; c++) board[0][c] = { type: blackBack[c], color: 'black' };
+  const blackRow1 = ['P','P','W','P','P','G','P','P'];
+  for (let c = 0; c < 8; c++) board[1][c] = { type: blackRow1[c], color: 'black' };
+  const whiteBack = ['R','N','B','Q','K','V','G','R'];
+  for (let c = 0; c < 8; c++) board[7][c] = { type: whiteBack[c], color: 'white' };
+  const whiteRow1 = ['P','P','P','W','P','P','P','P'];
+  for (let c = 0; c < 8; c++) board[6][c] = { type: whiteRow1[c], color: 'white' };
+}
+
+function getMoves(row, col) {
+  const piece = board[row][col];
+  if (!piece) return [];
+  const moves = [];
+  const enemy = piece.color === 'white' ? 'black' : 'white';
+  const ally  = piece.color;
+
+  function add(r, c) {
+    if (r < 0 || r > 7 || c < 0 || c > 7) return false;
+    if (board[r][c]?.color === ally) return false;
+    moves.push([r, c]);
+    return !board[r][c];
+  }
+
+  function slide(dr, dc) {
+    let r = row + dr, c = col + dc;
+    while (r >= 0 && r <= 7 && c >= 0 && c <= 7) {
+      if (board[r][c]?.color === ally) break;
+      moves.push([r, c]);
+      if (board[r][c]) break;
+      r += dr; c += dc;
+    }
+  }
+
+  function knightMoves() {
+    [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]
+      .forEach(([dr,dc]) => add(row+dr, col+dc));
+  }
+
+  switch (piece.type) {
+    case 'P': {
+      const dir = piece.color === 'white' ? -1 : 1;
+      const start = piece.color === 'white' ? 6 : 1;
+      if (!board[row+dir]?.[col]) {
+        moves.push([row+dir, col]);
+        if (row === start && !board[row+2*dir]?.[col]) moves.push([row+2*dir, col]);
+      }
+      [-1,1].forEach(dc => {
+        if (board[row+dir]?.[col+dc]?.color === enemy) moves.push([row+dir, col+dc]);
+      });
+      break;
+    }
+    case 'R': [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc]) => slide(dr,dc)); break;
+    case 'B': [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc]) => slide(dr,dc)); break;
+    case 'Q': [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc]) => slide(dr,dc)); break;
+    case 'K': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc]) => add(row+dr, col+dc)); break;
+    case 'N': knightMoves(); break;
+
+    case 'X':
+      knightMoves();
+      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc]) => slide(dr,dc));
+      break;
+
+    case 'Z':
+      [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc]) => {
+        for (let s = 1; s <= 3; s++) {
+          const r2 = row+dr*s, c2 = col+dc*s;
+          if (r2 < 0 || r2 > 7 || c2 < 0 || c2 > 7) break;
+          if (board[r2][c2]?.color === ally) break;
+          moves.push([r2, c2]);
+          if (board[r2][c2]) break;
+        }
+      });
+      break;
+
+    case 'S':
+      for (let dr = -2; dr <= 2; dr++) {
+        for (let dc = -2; dc <= 2; dc++) {
+          if ((Math.abs(dr) === 2 || Math.abs(dc) === 2) && (dr !== 0 || dc !== 0)) {
+            add(row+dr, col+dc);
+          }
+        }
+      }
+      break;
+
+    case 'G':
+      [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc]) => slide(dr,dc));
+      knightMoves();
+      break;
+
+    case 'W':
+      [[-1,0],[1,0]].forEach(dr => {
+        const r2 = row + dr;
+        if (r2 >= 0 && r2 <= 7 && !board[r2][col]) moves.push([r2, col]);
+      });
+      [[-2,-2],[-2,2],[2,-2],[2,2]].forEach(([dr,dc]) => {
+        const r2 = row+dr, c2 = col+dc;
+        if (r2 >= 0 && r2 <= 7 && c2 >= 0 && c2 <= 7 && board[r2][c2]?.color === enemy) {
+          moves.push([r2, c2]);
+        }
+      });
+      break;
+
+    case 'V':
+      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc]) => slide(dr,dc));
+      break;
+  }
+
+  return moves;
+}
+
+function movePiece(fromR, fromC, toR, toC) {
+  board[toR][toC] = board[fromR][fromC];
+  board[fromR][fromC] = null;
+  lastMove = [[fromR,fromC],[toR,toC]];
+}
+
+function aiMove() {
+  if (gameOver) return;
+  const allMoves = [];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (board[r][c]?.color === 'black') {
+        getMoves(r,c).forEach(([tr,tc]) => allMoves.push([r,c,tr,tc]));
+      }
+    }
+  }
+  if (!allMoves.length) return;
+  const captures = allMoves.filter(([r,c,tr,tc]) => board[tr][tc]?.color === 'white');
+  const mysteryMoves = allMoves.filter(([r,c]) => PIECES[board[r][c]?.type]?.mystery);
+  const pool = captures.length ? captures
+    : (mysteryMoves.length && Math.random() > 0.4 ? mysteryMoves : allMoves);
+  const [r,c,tr,tc] = pool[Math.floor(Math.random()*pool.length)];
+  movePiece(r,c,tr,tc);
+  checkEndGame();
+  turn = 'white';
+  renderBoard();
+  updateStatus();
+}
+
+function checkEndGame() {
+  const hasWhiteKing = board.flat().some(p => p?.type === 'K' && p?.color === 'white');
+  const hasBlackKing = board.flat().some(p => p?.type === 'K' && p?.color === 'black');
+  if (!hasWhiteKing) { gameOver = true; updateStatus('😈 Qalib: Qara! Boss şahmatı qazandı!'); }
+  if (!hasBlackKing) { gameOver = true; updateStatus('🏆 Qalib: Sən! Boss məğlub edildi!'); }
+}
+
+function updateStatus(msg) {
+  const bar = document.getElementById('status-bar');
+  if (msg) { bar.textContent = msg; return; }
+  if (gameOver) return;
+  bar.textContent = turn === 'white' ? '⚪ Sənin növbən — ağ daşlar' : '⚫ Rəqib düşünür...';
+}
+
+function cellClick(r, c) {
+  if (gameOver || turn !== 'white') return;
+  const piece = board[r][c];
+
+  if (selected) {
+    const isValid = validMoves.some(([vr,vc]) => vr===r && vc===c);
+    if (isValid) {
+      movePiece(selected[0], selected[1], r, c);
+      selected = null; validMoves = [];
+      checkEndGame();
+      if (!gameOver) {
+        turn = 'black';
+        renderBoard();
+        updateStatus();
+        setTimeout(aiMove, 700);
+        return;
+      }
+    } else {
+      selected = null; validMoves = [];
+      if (piece?.color === 'white') {
+        selected = [r,c];
+        validMoves = getMoves(r,c);
+      }
+    }
+  } else {
+    if (piece?.color === 'white') {
+      selected = [r,c];
+      validMoves = getMoves(r,c);
+    }
+  }
+  renderBoard();
+}
+
+function renderBoard() {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement('div');
+      const isLight = (r+c)%2 === 0;
+      cell.className = 'cell ' + (isLight ? 'light' : 'dark');
+
+      if (selected && selected[0]===r && selected[1]===c) cell.classList.add('selected');
+
+      if (lastMove) {
+        const [[r1,c1],[r2,c2]] = lastMove;
+        if (r===r1 && c===c1) cell.classList.add('last-move-a');
+        if (r===r2 && c===c2) cell.classList.add('last-move-b');
+      }
+
+      const isValid = validMoves.some(([vr,vc]) => vr===r && vc===c);
+      if (isValid) {
+        cell.classList.add(board[r][c] ? 'capture-move' : 'valid-move');
+      }
+
+      const piece = board[r][c];
+      if (piece) {
+        const pd = PIECES[piece.type];
+        const span = document.createElement('div');
+        span.className = 'piece ' + piece.color + (pd.mystery ? ' mystery-glow' : '');
+        span.textContent = pd.sym;
+        cell.appendChild(span);
+      }
+
+      cell.addEventListener('click', () => cellClick(r,c));
+      cell.addEventListener('mouseenter', (e) => showTooltip(e, r, c));
+      cell.addEventListener('mouseleave', hideTooltip);
+      boardEl.appendChild(cell);
+    }
+  }
+}
+
+function showTooltip(e, r, c) {
+  const piece = board[r][c];
+  if (!piece) { hideTooltip(); return; }
+  const pd = PIECES[piece.type];
+  const tt = document.getElementById('tooltip');
+  const owner = piece.color === 'white' ? 'Sənin fiqurın' : 'Rəqib fiquru';
+  tt.innerHTML = `
+    <strong>${pd.sym} ${pd.name}</strong>
+    <span class="tt-owner">${owner}</span>
+    ${pd.mystery ? '<span class="tt-mystery">🔮 Sirli fiqur — </span>' : ''}${pd.desc}
+  `;
+  tt.style.display = 'block';
+  tt.style.left = (e.clientX + 16) + 'px';
+  tt.style.top  = (e.clientY - 8) + 'px';
+}
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+
+function renderLegend() {
+  const leg = document.getElementById('legend');
+  leg.innerHTML = '';
+  ['X','Z','S','G','W','V'].forEach(type => {
+    const pd = PIECES[type];
+    const card = document.createElement('div');
+    card.className = 'legend-card';
+    card.innerHTML = `
+      <div class="lc-top">
+        <span class="lc-icon">${pd.sym}</span>
+        <span class="lc-name">${pd.name}</span>
+        <span class="lc-badge">Sirli</span>
+      </div>
+      <div class="lc-desc">${pd.desc}</div>
+    `;
+    leg.appendChild(card);
+  });
+}
+
+function resetGame() {
+  selected = null; validMoves = []; turn = 'white'; lastMove = null; gameOver = false;
+  initBoard(); renderBoard(); renderLegend(); updateStatus();
+}
+
+initBoard();
+renderBoard();
+renderLegend();
+updateStatus();
+</script>
+</body>
+</html>
