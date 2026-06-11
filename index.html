@@ -11,8 +11,55 @@ body {
   background: #1a1a2e; color: #e0e0e0;
   min-height: 100vh;
   display: flex; flex-direction: column; align-items: center;
-  padding: 20px 16px; gap: 14px;
+  padding: 20px 16px; gap: 12px;
 }
+
+/* ── DIFFICULTY SCREEN ── */
+#diff-screen {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; max-width: 510px; width: 100%; padding-top: 20px;
+}
+#diff-screen h1 { font-size: 30px; font-weight: 700; color: #f0d9b5; letter-spacing: 1px; }
+#diff-screen p  { font-size: 13px; color: #666; margin-top: -6px; }
+#diff-buttons   { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+
+.diff-btn {
+  display: flex; align-items: center; gap: 14px;
+  background: #16213e; border: 1px solid #2a2a4a;
+  border-radius: 10px; padding: 14px 18px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s; text-align: left;
+}
+.diff-btn:hover { background: #1e2d54; }
+.diff-btn .diff-icon  { font-size: 26px; width: 36px; text-align: center; }
+.diff-btn .diff-info  { flex: 1; }
+.diff-btn .diff-name  { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.diff-btn .diff-desc  { font-size: 11px; color: #777; line-height: 1.4; }
+.diff-btn .diff-badge {
+  font-size: 10px; padding: 3px 9px; border-radius: 9999px; font-weight: 600;
+}
+
+.diff-btn.bebe   { border-color: #2a5a2a; } .diff-btn.bebe:hover { border-color:#4aaa4a; }
+.diff-btn.bebe   .diff-name  { color: #7ddd7d; }
+.diff-btn.bebe   .diff-badge { background:#1a3a1a; color:#7ddd7d; }
+
+.diff-btn.asan   { border-color: #2a4a5a; } .diff-btn.asan:hover { border-color:#4a9aaa; }
+.diff-btn.asan   .diff-name  { color: #7dcfdd; }
+.diff-btn.asan   .diff-badge { background:#1a2a3a; color:#7dcfdd; }
+
+.diff-btn.orta   { border-color: #4a4a1a; } .diff-btn.orta:hover { border-color:#aaaa4a; }
+.diff-btn.orta   .diff-name  { color: #dddd7d; }
+.diff-btn.orta   .diff-badge { background:#2a2a1a; color:#dddd7d; }
+
+.diff-btn.cetin  { border-color: #5a2a1a; } .diff-btn.cetin:hover { border-color:#aa6a4a; }
+.diff-btn.cetin  .diff-name  { color: #ddaa7d; }
+.diff-btn.cetin  .diff-badge { background:#3a1a1a; color:#ddaa7d; }
+
+.diff-btn.imkansiz { border-color: #5a1a1a; } .diff-btn.imkansiz:hover { border-color:#aa4a4a; }
+.diff-btn.imkansiz .diff-name  { color: #dd7d7d; }
+.diff-btn.imkansiz .diff-badge { background:#3a1010; color:#dd7d7d; }
+
+/* ── GAME SCREEN ── */
+#game-screen { display: none; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
 
 #secret-bar {
   display: flex; align-items: center; gap: 8px;
@@ -39,9 +86,33 @@ body {
 #ultra-banner h2 { font-size: 15px; color: #d0b0ff; margin-bottom: 2px; }
 #ultra-banner p  { font-size: 11px; color: #888; }
 
-#header { text-align: center; }
-#header h1 { font-size: 26px; font-weight: 700; color: #f0d9b5; letter-spacing: 1px; margin-bottom: 4px; }
-#header p  { font-size: 13px; color: #666; }
+/* ── TIMER BAR ── */
+#timer-wrap {
+  width: 100%; max-width: 510px;
+  display: none; flex-direction: column; gap: 5px;
+}
+#timer-top {
+  display: flex; justify-content: space-between; align-items: center;
+}
+#timer-label { font-size: 12px; color: #888; }
+#timer-seconds { font-size: 15px; font-weight: 700; color: #f0d9b5; font-family: monospace; }
+#timer-bar-bg {
+  height: 6px; background: #1e1e3a; border-radius: 9999px; overflow: hidden;
+}
+#timer-bar-fill {
+  height: 100%; border-radius: 9999px;
+  background: linear-gradient(90deg, #4aaa4a, #aadd4a);
+  transition: width 0.25s linear, background 0.25s;
+}
+#timer-bar-fill.warn  { background: linear-gradient(90deg, #ddaa00, #ffcc00); }
+#timer-bar-fill.danger{ background: linear-gradient(90deg, #cc2200, #ff4422); }
+
+#header-game { text-align: center; }
+#header-game h1 { font-size: 22px; font-weight: 700; color: #f0d9b5; letter-spacing: 1px; margin-bottom: 2px; }
+#diff-badge-display {
+  display: inline-block; font-size: 11px; padding: 2px 10px;
+  border-radius: 9999px; font-weight: 600; margin-top: 2px;
+}
 
 #status-bar {
   background: #16213e; border: 1px solid #333; border-radius: 8px;
@@ -50,6 +121,7 @@ body {
   text-align: center; font-weight: 500;
 }
 #status-bar.check { border-color: #cc3333; color: #ff8888; }
+#status-bar.timeout { border-color: #cc5500; color: #ffaa44; }
 
 #board {
   display: grid;
@@ -72,10 +144,14 @@ body {
 .cell.in-check {
   background: #cc2222 !important;
   box-shadow: inset 0 0 0 3px #ff4444;
+  animation: pulse-check 0.8s ease-in-out infinite alternate;
+}
+@keyframes pulse-check {
+  from { box-shadow: inset 0 0 0 3px #ff4444; }
+  to   { box-shadow: inset 0 0 12px 3px #ff6666; }
 }
 .cell.valid-move::after {
-  content:''; position:absolute;
-  width:20px; height:20px;
+  content:''; position:absolute; width:20px; height:20px;
   background:rgba(0,0,0,0.22); border-radius:50%; pointer-events:none;
 }
 .cell.capture-move::after {
@@ -88,10 +164,8 @@ body {
 }
 
 .piece {
-  width:52px; height:52px;
-  display:flex; align-items:center; justify-content:center;
-  border-radius:50%; font-size:26px;
-  position:relative; z-index:2; transition: transform 0.1s;
+  width:52px; height:52px; display:flex; align-items:center; justify-content:center;
+  border-radius:50%; font-size:26px; position:relative; z-index:2; transition: transform 0.1s;
 }
 .piece:hover { transform: scale(1.1); }
 .piece.white { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
@@ -103,8 +177,7 @@ body {
   display: flex; gap: 12px; max-width: 510px; width: 100%; flex-wrap: wrap;
 }
 #cemetery-panel, #mimic-panel {
-  flex: 1; min-width: 200px;
-  background: #16213e; border: 1px solid #2a2a4a;
+  flex: 1; min-width: 200px; background: #16213e; border: 1px solid #2a2a4a;
   border-radius: 8px; padding: 10px 12px;
 }
 #cemetery-panel h3, #mimic-panel h3 {
@@ -114,8 +187,7 @@ body {
 #cemetery-list, #mimic-status { font-size: 12px; color: #aaa; min-height: 20px; }
 
 #legend {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 8px; max-width: 510px; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 510px; width: 100%;
 }
 .legend-card {
   background: #16213e; border: 1px solid #2a2a4a;
@@ -125,10 +197,7 @@ body {
 .lc-top { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
 .lc-icon { font-size:17px; }
 .lc-name { font-size:12px; font-weight:600; color:#f0d9b5; flex:1; }
-.lc-badge {
-  font-size:9px; padding:2px 7px; border-radius:9999px;
-  font-weight:600; background:#2e1e5e; color:#b09fe0;
-}
+.lc-badge { font-size:9px; padding:2px 7px; border-radius:9999px; font-weight:600; background:#2e1e5e; color:#b09fe0; }
 .lc-badge.both { background:#1e3e1e; color:#80c080; }
 .lc-desc { font-size:10px; color:#777; line-height:1.4; }
 
@@ -149,44 +218,139 @@ body {
 #tooltip strong { font-size:13px; color:#f0d9b5; }
 .tt-owner { font-size:11px; color:#666; display:block; margin-bottom:4px; }
 .tt-special { color:#b09fe0; }
-#footer { font-size:11px; color:#333; text-align:center; }
 </style>
 </head>
 <body>
 
-<div id="secret-bar">
-  <label>▸</label>
-  <input id="secret-input" type="password" maxlength="4" autocomplete="off" placeholder="····" spellcheck="false">
-  <span id="secret-hint">——</span>
-</div>
-<div id="ultra-banner">
-  <h2>⚔️ ULTRA REJİM AÇILDİ</h2>
-  <p>İndi sən də xüsusi fiqurlarla oynayırsan!</p>
-</div>
-<div id="header">
+<!-- ── DIFFICULTY SELECTION SCREEN ── -->
+<div id="diff-screen">
   <h1>👑 Boss Chess</h1>
-  <p id="header-sub">Normal daşlarla 7 xüsusi fiqurun üstündən qalib gəl</p>
-</div>
-<div id="status-bar">Sənin növbən — ağ daşlar</div>
-<div id="board"></div>
-<div id="panels">
-  <div id="cemetery-panel">
-    <h3>⚰️ Məzarlıq (qara piyadalar)</h3>
-    <div id="cemetery-list">—</div>
+  <p>Zorluq səviyyəsini seç</p>
+  <div id="diff-buttons">
+
+    <div class="diff-btn bebe" onclick="startGame('bebe')">
+      <div class="diff-icon">🍼</div>
+      <div class="diff-info">
+        <div class="diff-name">Bəbə</div>
+        <div class="diff-desc">Vaxt məhdudiyyəti yoxdur. Bütün fiqur məlumatları görünür. Öyrənmək üçün ideal.</div>
+      </div>
+      <div class="diff-badge">∞ vaxt</div>
+    </div>
+
+    <div class="diff-btn asan" onclick="startGame('asan')">
+      <div class="diff-icon">😊</div>
+      <div class="diff-info">
+        <div class="diff-name">Asan</div>
+        <div class="diff-desc">Hər həmlə üçün 7 saniyə. Fiqur məlumatları gizlənir.</div>
+      </div>
+      <div class="diff-badge">7 san</div>
+    </div>
+
+    <div class="diff-btn orta" onclick="startGame('orta')">
+      <div class="diff-icon">😐</div>
+      <div class="diff-info">
+        <div class="diff-name">Orta</div>
+        <div class="diff-desc">Hər həmlə üçün 5 saniyə. Fiqur məlumatları gizlənir.</div>
+      </div>
+      <div class="diff-badge">5 san</div>
+    </div>
+
+    <div class="diff-btn cetin" onclick="startGame('cetin')">
+      <div class="diff-icon">😤</div>
+      <div class="diff-info">
+        <div class="diff-name">Çətin</div>
+        <div class="diff-desc">Hər həmlə üçün 3 saniyə. Fiqur məlumatları gizlənir.</div>
+      </div>
+      <div class="diff-badge">3 san</div>
+    </div>
+
+    <div class="diff-btn imkansiz" onclick="startGame('imkansiz')">
+      <div class="diff-icon">💀</div>
+      <div class="diff-info">
+        <div class="diff-name">İmkansız</div>
+        <div class="diff-desc">3 saniyədən başlayır, hər həmlədən sonra 0.20 san azalır (min 1 san). Fiqur məlumatları gizlənir.</div>
+      </div>
+      <div class="diff-badge">3→1 san</div>
+    </div>
+
   </div>
-  <div id="mimic-panel">
-    <h3>🎭 Mimic statusu</h3>
-    <div id="mimic-status">Normal (1 xana hər istiqamət)</div>
+</div>
+
+<!-- ── GAME SCREEN ── -->
+<div id="game-screen">
+
+  <div id="secret-bar">
+    <label>▸</label>
+    <input id="secret-input" type="password" maxlength="4" autocomplete="off" placeholder="····" spellcheck="false">
+    <span id="secret-hint">——</span>
   </div>
+
+  <div id="ultra-banner">
+    <h2>⚔️ ULTRA REJİM AÇILDİ</h2>
+    <p>İndi sən də xüsusi fiqurlarla oynayırsan!</p>
+  </div>
+
+  <div id="header-game">
+    <h1>👑 Boss Chess</h1>
+    <span id="diff-badge-display"></span>
+  </div>
+
+  <!-- Timer -->
+  <div id="timer-wrap">
+    <div id="timer-top">
+      <span id="timer-label">Qalan vaxt</span>
+      <span id="timer-seconds">—</span>
+    </div>
+    <div id="timer-bar-bg">
+      <div id="timer-bar-fill" style="width:100%"></div>
+    </div>
+  </div>
+
+  <div id="status-bar">Sənin növbən — ağ daşlar</div>
+  <div id="board"></div>
+
+  <div id="panels">
+    <div id="cemetery-panel">
+      <h3>⚰️ Məzarlıq (qara piyadalar)</h3>
+      <div id="cemetery-list">—</div>
+    </div>
+    <div id="mimic-panel">
+      <h3>🎭 Mimic statusu</h3>
+      <div id="mimic-status">Normal (1 xana hər istiqamət)</div>
+    </div>
+  </div>
+
+  <div id="legend"></div>
+
+  <div id="controls">
+    <button onclick="goToMenu()">← Menyu</button>
+    <button onclick="resetGame()">🔄 Yenidən</button>
+  </div>
+
 </div>
-<div id="legend"></div>
-<div id="controls">
-  <button onclick="resetGame()">🔄 Yenidən başla</button>
-</div>
-<div id="footer">Siçanı fiqurun üstünə gətir — qaydanı gör</div>
+
 <div id="tooltip"></div>
 
 <script>
+// ═══════════════════════════════════════════
+// DIFFICULTY CONFIG
+// ═══════════════════════════════════════════
+const DIFFICULTIES = {
+  bebe:     { label:'🍼 Bəbə',     color:'#7ddd7d', timeLimit:0,    showInfo:true,  timeDecay:0 },
+  asan:     { label:'😊 Asan',     color:'#7dcfdd', timeLimit:7,    showInfo:false, timeDecay:0 },
+  orta:     { label:'😐 Orta',     color:'#dddd7d', timeLimit:5,    showInfo:false, timeDecay:0 },
+  cetin:    { label:'😤 Çətin',    color:'#ddaa7d', timeLimit:3,    showInfo:false, timeDecay:0 },
+  imkansiz: { label:'💀 İmkansız', color:'#dd7d7d', timeLimit:3,    showInfo:false, timeDecay:0.2 },
+};
+
+let difficulty = 'bebe';
+let currentTimeLimit = 3;
+let timerInterval = null;
+let timerRemaining = 0;
+
+// ═══════════════════════════════════════════
+// PIECE DEFINITIONS
+// ═══════════════════════════════════════════
 const PIECE_DEFS = {
   K:  { name:'Şah',        sym:'♔', special:false, desc:'Hər istiqamətə 1 xana.' },
   Q:  { name:'Vəzir',      sym:'♕', special:false, desc:'Hər istiqamətə istədiyi qədər.' },
@@ -202,72 +366,139 @@ const PIECE_DEFS = {
   RH: { name:'Rhino',      sym:'🦏', special:true,  desc:'At + Fil birlikdə. Eyni anda iki fiqurun gücü!' },
   BS: { name:'Backstabber',sym:'🔪', special:true,  desc:'2 xana uzaqdakı fiqurla yer dəyişər (Chebyshev=2). Şahla yer dəyişə bilmir.' },
 };
-
 const ALL_SPECIAL = ['PH','NC','TP','AS','MM','RH','BS'];
-// Black back-row pieces that are NEVER replaced by specials
-const BLACK_PROTECTED = new Set(['K','Q','P']);
 
+// ═══════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════
 let board=[], selected=null, validMoves=[], turn='white';
 let lastMove=null, gameOver=false, ultraMode=false;
 let cemetery=[], mimicType=null, blackMimicType=null;
 let whiteInCheck=false, blackInCheck=false;
 
-// ── SECRET CODE ──
-document.getElementById('secret-input').addEventListener('input', function() {
-  if (this.value === '2467') {
-    this.value = '';
-    if (!ultraMode) { ultraMode=true; applyUltra(); }
-  }
-});
-function applyUltra() {
-  document.getElementById('secret-hint').textContent='🔓 Ultra';
-  document.getElementById('secret-hint').classList.add('active');
-  document.getElementById('ultra-banner').classList.add('show');
-  document.getElementById('header-sub').textContent='Ultra rejim — hər iki tərəf tam silahlanıb!';
+// ═══════════════════════════════════════════
+// SCREEN NAVIGATION
+// ═══════════════════════════════════════════
+function goToMenu() {
+  stopTimer();
+  document.getElementById('diff-screen').style.display='flex';
+  document.getElementById('game-screen').style.display='none';
+}
+
+function startGame(diff) {
+  difficulty = diff;
+  const cfg = DIFFICULTIES[diff];
+  currentTimeLimit = cfg.timeLimit;
+
+  document.getElementById('diff-screen').style.display='none';
+  document.getElementById('game-screen').style.display='flex';
+
+  // Badge
+  const badge = document.getElementById('diff-badge-display');
+  badge.textContent = cfg.label;
+  badge.style.background = cfg.color + '22';
+  badge.style.color = cfg.color;
+  badge.style.border = '1px solid ' + cfg.color + '55';
+
+  // Legend visibility
+  document.getElementById('legend').style.display = cfg.showInfo ? 'grid' : 'none';
+  document.getElementById('panels').style.display  = cfg.showInfo ? 'flex' : 'none';
+
+  // Timer bar visibility
+  document.getElementById('timer-wrap').style.display = cfg.timeLimit > 0 ? 'flex' : 'none';
+
   resetGame();
 }
 
-// ── BOARD INIT ──
+// ═══════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════
+function startTimer() {
+  const cfg = DIFFICULTIES[difficulty];
+  if (!cfg.timeLimit) return;
+  stopTimer();
+  timerRemaining = currentTimeLimit;
+  renderTimer();
+  timerInterval = setInterval(() => {
+    timerRemaining -= 0.25;
+    if (timerRemaining <= 0) {
+      timerRemaining = 0;
+      renderTimer();
+      stopTimer();
+      onTimeout();
+    } else {
+      renderTimer();
+    }
+  }, 250);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function renderTimer() {
+  const cfg = DIFFICULTIES[difficulty];
+  if (!cfg.timeLimit) return;
+  const secs = document.getElementById('timer-seconds');
+  const fill = document.getElementById('timer-bar-fill');
+  const pct = Math.max(0, timerRemaining / currentTimeLimit * 100);
+  secs.textContent = timerRemaining.toFixed(2) + 's';
+  fill.style.width = pct + '%';
+  fill.className = 'timer-bar-fill';
+  if (pct < 30) fill.classList.add('danger');
+  else if (pct < 55) fill.classList.add('warn');
+}
+
+function onTimeout() {
+  if (gameOver || turn !== 'white') return;
+  // Deselect and lock out player — AI takes over this turn
+  selected = null; validMoves = [];
+  const bar = document.getElementById('status-bar');
+  bar.textContent = '⏰ Vaxt bitdi! Rəqib oynayır...';
+  bar.className = 'timeout';
+  renderBoard();
+  setTimeout(() => {
+    if (!gameOver) {
+      turn = 'black';
+      updateCheckState();
+      renderBoard(); updateStatus();
+      setTimeout(aiMove, 500);
+    }
+  }, 600);
+}
+
+function onPlayerMoveDone() {
+  stopTimer();
+  // Decay for impossible
+  const cfg = DIFFICULTIES[difficulty];
+  if (cfg.timeDecay > 0) {
+    currentTimeLimit = Math.max(1, +(currentTimeLimit - cfg.timeDecay).toFixed(2));
+  }
+}
+
+// ═══════════════════════════════════════════
+// BOARD INIT
+// ═══════════════════════════════════════════
 function shuffle(arr) { return [...arr].sort(()=>Math.random()-0.5); }
 
 function makeBlackBackRow() {
-  // Positions: 0=R, 4=K fixed. 1,2,3,5,6,7 are candidates.
-  // R(7) also fixed. Inner slots: 1,2,3,5,6 (5 slots)
-  // Normal inner pieces: N,B,Q,B,N  → replace non-Q,B candidates with specials
-  // Rule: K,Q,P never become special → Q stays Q
-  // Replace R,N,B at random inner positions with specials
-  const specials = shuffle(ALL_SPECIAL);
-  // Inner slots that can be specials: originally N, B, B, N (4 pieces, not Q)
-  // Layout base: R  N  B  Q  K  B  N  R
-  //              0  1  2  3  4  5  6  7
-  // Eligible for replacement: positions 1,2,5,6 (N and B, not Q at 3)
-  const eligible = shuffle([1,2,5,6]);
-  // Replace 2-4 of them randomly
-  const replaceCount = 2 + Math.floor(Math.random()*3); // 2,3 or 4
-  const row = ['R','N','B','Q','K','B','N','R'];
-  const used = [];
-  for (let i=0; i<Math.min(replaceCount, eligible.length, specials.length); i++) {
-    row[eligible[i]] = specials[i];
-    used.push(specials[i]);
-  }
-  return row;
-}
-
-function makeBlackPawnRow() {
-  // Pawn row: never replace pawns with specials (rule: P protected)
-  return Array(8).fill('P');
-  // Actually user said "piyada sehrli daşa çevrilməsin" — so all P stays P
-}
-
-function makeWhiteBackRow(useSpecial) {
-  if (!useSpecial) return ['R','N','B','Q','K','B','N','R'];
   const specials = shuffle(ALL_SPECIAL);
   const eligible = shuffle([1,2,5,6]);
   const replaceCount = 2 + Math.floor(Math.random()*3);
   const row = ['R','N','B','Q','K','B','N','R'];
-  for (let i=0; i<Math.min(replaceCount, eligible.length, specials.length); i++) {
+  for(let i=0; i<Math.min(replaceCount, eligible.length, specials.length); i++)
     row[eligible[i]] = specials[i];
-  }
+  return row;
+}
+
+function makeWhiteBackRow(useSpecial) {
+  if(!useSpecial) return ['R','N','B','Q','K','B','N','R'];
+  const specials = shuffle(ALL_SPECIAL);
+  const eligible = shuffle([1,2,5,6]);
+  const replaceCount = 2 + Math.floor(Math.random()*3);
+  const row = ['R','N','B','Q','K','B','N','R'];
+  for(let i=0; i<Math.min(replaceCount, eligible.length, specials.length); i++)
+    row[eligible[i]] = specials[i];
   return row;
 }
 
@@ -276,63 +507,56 @@ function initBoard() {
   cemetery=[]; mimicType=null; blackMimicType=null;
   whiteInCheck=false; blackInCheck=false;
 
-  const blackBack  = makeBlackBackRow();
-  const blackPawns = makeBlackPawnRow();
-  for(let c=0;c<8;c++) board[0][c]={type:blackBack[c],  color:'black'};
-  for(let c=0;c<8;c++) board[1][c]={type:blackPawns[c], color:'black'};
+  const blackBack = makeBlackBackRow();
+  for(let c=0;c<8;c++) board[0][c]={type:blackBack[c], color:'black'};
+  for(let c=0;c<8;c++) board[1][c]={type:'P',          color:'black'};
 
-  if (ultraMode) {
-    const whiteBack  = makeWhiteBackRow(true);
-    const whitePawns = Array(8).fill('P');
-    for(let c=0;c<8;c++) board[7][c]={type:whiteBack[c],  color:'white'};
-    for(let c=0;c<8;c++) board[6][c]={type:whitePawns[c], color:'white'};
+  if(ultraMode) {
+    const whiteBack = makeWhiteBackRow(true);
+    for(let c=0;c<8;c++) board[7][c]={type:whiteBack[c], color:'white'};
   } else {
     for(let c=0;c<8;c++) board[7][c]={type:['R','N','B','Q','K','B','N','R'][c], color:'white'};
-    for(let c=0;c<8;c++) board[6][c]={type:'P', color:'white'};
   }
+  for(let c=0;c<8;c++) board[6][c]={type:'P', color:'white'};
 }
 
-// ── MOVE GENERATION (pure, no side effects) ──
-function getRawMoves(row, col, brd, mType, bmType) {
-  const piece = brd[row][col];
-  if (!piece) return [];
-  const moves = [];
-  const enemy = piece.color==='white'?'black':'white';
-  const ally  = piece.color;
-  let eff = piece.type;
-  if (piece.type==='MM') eff=(piece.color==='white'?mType:bmType)||'MM';
+// ═══════════════════════════════════════════
+// MOVE GENERATION
+// ═══════════════════════════════════════════
+function getRawMoves(row, col, brd, mT, bmT) {
+  const piece=brd[row][col]; if(!piece) return [];
+  const moves=[];
+  const enemy=piece.color==='white'?'black':'white';
+  const ally=piece.color;
+  let eff=piece.type;
+  if(piece.type==='MM') eff=(piece.color==='white'?mT:bmT)||'MM';
 
   function add(r,c,meta={}) {
     if(r<0||r>7||c<0||c>7) return;
     if(brd[r][c]?.color===ally) return;
-    if(meta.noKing && brd[r][c]?.type==='K' && brd[r][c]?.color===enemy) return;
+    if(meta.noKing&&brd[r][c]?.type==='K'&&brd[r][c]?.color===enemy) return;
     moves.push({r,c,...meta});
   }
-
   function slide(dr,dc,through=false,noKing=false) {
-    let r=row+dr, c=col+dc;
+    let r=row+dr,c=col+dc;
     while(r>=0&&r<=7&&c>=0&&c<=7) {
       if(brd[r][c]?.color===ally) { if(through){r+=dr;c+=dc;continue;} else break; }
       if(brd[r][c]?.color===enemy) {
-        if(noKing && brd[r][c]?.type==='K') { if(through){r+=dr;c+=dc;continue;} else break; }
-        moves.push({r,c});
-        if(!through) break;
-      } else {
-        moves.push({r,c});
-      }
+        if(noKing&&brd[r][c]?.type==='K') { if(through){r+=dr;c+=dc;continue;} else break; }
+        moves.push({r,c}); if(!through) break;
+      } else moves.push({r,c});
       r+=dr; c+=dc;
     }
   }
-
   function knight() {
     [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]
       .forEach(([dr,dc])=>add(row+dr,col+dc));
   }
 
-  if (eff==='BS') {
+  if(eff==='BS') {
     for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++) {
       if(Math.max(Math.abs(dr),Math.abs(dc))!==2) continue;
-      const r2=row+dr, c2=col+dc;
+      const r2=row+dr,c2=col+dc;
       if(r2<0||r2>7||c2<0||c2>7) continue;
       if(!brd[r2][c2]) continue;
       if(brd[r2][c2]?.type==='K') continue;
@@ -343,15 +567,12 @@ function getRawMoves(row, col, brd, mType, bmType) {
 
   switch(eff) {
     case 'P': {
-      const dir=piece.color==='white'?-1:1;
-      const start=piece.color==='white'?6:1;
+      const dir=piece.color==='white'?-1:1, start=piece.color==='white'?6:1;
       if(!brd[row+dir]?.[col]) {
         moves.push({r:row+dir,c:col});
         if(row===start&&!brd[row+2*dir]?.[col]) moves.push({r:row+2*dir,c:col});
       }
-      [-1,1].forEach(dc=>{
-        if(brd[row+dir]?.[col+dc]?.color===enemy) moves.push({r:row+dir,c:col+dc});
-      });
+      [-1,1].forEach(dc=>{ if(brd[row+dir]?.[col+dc]?.color===enemy) moves.push({r:row+dir,c:col+dc}); });
       break;
     }
     case 'R': [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>slide(dr,dc)); break;
@@ -366,8 +587,7 @@ function getRawMoves(row, col, brd, mType, bmType) {
         for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++) {
           if(dr===0&&dc===0) continue;
           const r2=row+dr,c2=col+dc;
-          if(r2>=0&&r2<=7&&c2>=0&&c2<=7&&!brd[r2][c2])
-            moves.push({r:r2,c:c2,necro:true});
+          if(r2>=0&&r2<=7&&c2>=0&&c2<=7&&!brd[r2][c2]) moves.push({r:r2,c:c2,necro:true});
         }
       }
       break;
@@ -396,85 +616,59 @@ function getRawMoves(row, col, brd, mType, bmType) {
     case 'MM':
       [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc));
       break;
-    case 'RH':
-      knight();
-      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc));
-      break;
+    case 'RH': knight(); [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc)); break;
   }
   return moves;
 }
 
-// ── CHECK DETECTION ──
-// Is square (tr,tc) attacked by any piece of `attackerColor` on board brd?
-function isSquareAttacked(tr, tc, attackerColor, brd, mT, bmT) {
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
-    if(brd[r][c]?.color!==attackerColor) continue;
-    const moves = getRawMoves(r,c,brd,mT,bmT);
-    if(moves.some(m=>m.r===tr&&m.c===tc&&!m.necro&&!m.swap)) return true;
-  }
-  return false;
-}
-
-function findKing(color, brd) {
+// ═══════════════════════════════════════════
+// CHECK DETECTION
+// ═══════════════════════════════════════════
+function findKing(color,brd) {
   for(let r=0;r<8;r++) for(let c=0;c<8;c++)
     if(brd[r][c]?.type==='K'&&brd[r][c]?.color===color) return [r,c];
   return null;
 }
-
-function isInCheck(color, brd, mT, bmT) {
-  const kPos = findKing(color, brd);
-  if(!kPos) return false;
-  const attacker = color==='white'?'black':'white';
-  return isSquareAttacked(kPos[0], kPos[1], attacker, brd, mT, bmT);
+function isInCheck(color,brd,mT,bmT) {
+  const kPos=findKing(color,brd); if(!kPos) return false;
+  const attacker=color==='white'?'black':'white';
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    if(brd[r][c]?.color!==attacker) continue;
+    const mvs=getRawMoves(r,c,brd,mT,bmT);
+    if(mvs.some(m=>m.r===kPos[0]&&m.c===kPos[1]&&!m.necro&&!m.swap)) return true;
+  }
+  return false;
 }
-
-// Simulate move and check if it leaves own king in check
-function moveLeavesInCheck(fr,fc,tr,tc,meta,color) {
-  const brd = board.map(row=>row.map(c=>c?{...c}:null));
-  applyMoveToBoard(brd,fr,fc,tr,tc,meta);
-  return isInCheck(color, brd, mimicType, blackMimicType);
-}
-
 function applyMoveToBoard(brd,fr,fc,tr,tc,meta) {
-  const piece=brd[fr][fc];
-  if(!piece) return;
+  const piece=brd[fr][fc]; if(!piece) return;
   if(meta?.swap) { const t=brd[tr][tc]; brd[tr][tc]=piece; brd[fr][fc]=t; return; }
   if(meta?.necro) { brd[tr][tc]={type:'P',color:piece.color}; return; }
   if(meta?.assassin&&brd[tr][tc]) { brd[tr][tc]=null; brd[fr][fc]=null; return; }
   brd[tr][tc]=piece; brd[fr][fc]=null;
 }
-
-// Legal moves = raw moves filtered by "doesn't leave own king in check"
+function moveLeavesInCheck(fr,fc,tr,tc,meta,color) {
+  const brd=board.map(row=>row.map(c=>c?{...c}:null));
+  applyMoveToBoard(brd,fr,fc,tr,tc,meta);
+  return isInCheck(color,brd,mimicType,blackMimicType);
+}
 function getLegalMoves(row,col) {
-  const piece=board[row][col];
-  if(!piece) return [];
-  const raw=getRawMoves(row,col,board,mimicType,blackMimicType);
-  return raw.filter(m=>!moveLeavesInCheck(row,col,m.r,m.c,m,piece.color));
+  const piece=board[row][col]; if(!piece) return [];
+  return getRawMoves(row,col,board,mimicType,blackMimicType)
+    .filter(m=>!moveLeavesInCheck(row,col,m.r,m.c,m,piece.color));
+}
+function getAllLegalMovesFor(color) {
+  const all=[];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++)
+    if(board[r][c]?.color===color) getLegalMoves(r,c).forEach(m=>all.push({fr:r,fc:c,...m}));
+  return all;
 }
 
-// ── PIECE VALUE for AI scoring ──
-const PIECE_VALUE = { P:1, N:3, B:3, R:5, Q:9, K:100,
-  PH:4, NC:3, TP:3, AS:3, MM:3, RH:6, BS:2 };
-
-function boardScore() {
-  // Positive = good for black (AI)
-  let score=0;
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
-    const p=board[r][c]; if(!p) continue;
-    const v=PIECE_VALUE[p.type]||2;
-    score += p.color==='black'?v:-v;
-  }
-  return score;
-}
-
-// ── EXECUTE MOVE ──
+// ═══════════════════════════════════════════
+// EXECUTE MOVE
+// ═══════════════════════════════════════════
 function doMove(fr,fc,tr,tc,meta) {
-  const piece=board[fr][fc];
-  const target=board[tr][tc];
-  if(meta?.swap) {
-    board[fr][fc]=target; board[tr][tc]=piece;
-    lastMove=[[fr,fc],[tr,tc]]; return;
-  }
+  const piece=board[fr][fc], target=board[tr][tc];
+  if(meta?.swap) { board[fr][fc]=target; board[tr][tc]=piece; lastMove=[[fr,fc],[tr,tc]]; return; }
   if(meta?.necro) {
     if(cemetery.length>0) { cemetery.pop(); board[tr][tc]={type:'P',color:piece.color}; }
     lastMove=[[fr,fc],[tr,tc]]; return;
@@ -486,74 +680,64 @@ function doMove(fr,fc,tr,tc,meta) {
       else blackMimicType=target.type;
     }
   }
-  if(meta?.assassin&&target) {
-    board[tr][tc]=null; board[fr][fc]=null;
-    lastMove=[[fr,fc],[tr,tc]]; return;
-  }
+  if(meta?.assassin&&target) { board[tr][tc]=null; board[fr][fc]=null; lastMove=[[fr,fc],[tr,tc]]; return; }
   board[tr][tc]=piece; board[fr][fc]=null;
   lastMove=[[fr,fc],[tr,tc]];
 }
 
-// ── AI — Minimax depth 2 ──
-function minimax(depth, maximizing, alpha, beta) {
+// ═══════════════════════════════════════════
+// AI — Minimax depth 2
+// ═══════════════════════════════════════════
+const PIECE_VALUE={P:1,N:3,B:3,R:5,Q:9,K:100,PH:4,NC:3,TP:3,AS:3,MM:3,RH:6,BS:2};
+function boardScore() {
+  let s=0;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    const p=board[r][c]; if(!p) continue;
+    const v=PIECE_VALUE[p.type]||2;
+    s+=p.color==='black'?v:-v;
+  }
+  return s;
+}
+function minimax(depth,maximizing,alpha,beta) {
   if(depth===0) return boardScore();
   const color=maximizing?'black':'white';
-  const allMoves=[];
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
-    if(board[r][c]?.color===color) {
-      getLegalMoves(r,c).forEach(m=>allMoves.push({fr:r,fc:c,...m}));
-    }
-  }
+  const allMoves=getAllLegalMovesFor(color);
   if(!allMoves.length) return maximizing?-1000:1000;
-
   if(maximizing) {
     let best=-Infinity;
     for(const mv of allMoves) {
-      // Save state
-      const saved=board.map(row=>row.map(c=>c?{...c}:null));
+      const saved=board.map(r=>r.map(c=>c?{...c}:null));
       const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
       doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
       const val=minimax(depth-1,false,alpha,beta);
-      // Restore
       board.forEach((row,r)=>row.forEach((_,c)=>board[r][c]=saved[r][c]));
       mimicType=smT; blackMimicType=sbmT; cemetery=scem;
-      best=Math.max(best,val);
-      alpha=Math.max(alpha,val);
+      best=Math.max(best,val); alpha=Math.max(alpha,val);
       if(beta<=alpha) break;
     }
     return best;
   } else {
     let best=Infinity;
     for(const mv of allMoves) {
-      const saved=board.map(row=>row.map(c=>c?{...c}:null));
+      const saved=board.map(r=>r.map(c=>c?{...c}:null));
       const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
       doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
       const val=minimax(depth-1,true,alpha,beta);
       board.forEach((row,r)=>row.forEach((_,c)=>board[r][c]=saved[r][c]));
       mimicType=smT; blackMimicType=sbmT; cemetery=scem;
-      best=Math.min(best,val);
-      beta=Math.min(beta,val);
+      best=Math.min(best,val); beta=Math.min(beta,val);
       if(beta<=alpha) break;
     }
     return best;
   }
 }
-
 function aiMove() {
   if(gameOver) return;
-  const allMoves=[];
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
-    if(board[r][c]?.color==='black') {
-      getLegalMoves(r,c).forEach(m=>allMoves.push({fr:r,fc:c,...m}));
-    }
-  }
+  const allMoves=shuffle(getAllLegalMovesFor('black'));
   if(!allMoves.length) return;
-
-  // Shuffle for variety, then pick best via minimax depth 2
-  const shuffled=shuffle(allMoves);
-  let bestVal=-Infinity, bestMv=shuffled[0];
-  for(const mv of shuffled) {
-    const saved=board.map(row=>row.map(c=>c?{...c}:null));
+  let bestVal=-Infinity, bestMv=allMoves[0];
+  for(const mv of allMoves) {
+    const saved=board.map(r=>r.map(c=>c?{...c}:null));
     const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
     doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
     const val=minimax(1,false,-Infinity,Infinity);
@@ -565,81 +749,67 @@ function aiMove() {
   checkEnd();
   turn='white';
   updateCheckState();
-  renderBoard();
-  updateStatus();
-  updateCemeteryUI();
-  updateMimicUI();
+  renderBoard(); updateStatus();
+  updateCemeteryUI(); updateMimicUI();
+  // Start player's timer after AI move
+  if(!gameOver) startTimer();
 }
 
-// ── CHECK/END STATE ──
+// ═══════════════════════════════════════════
+// STATE HELPERS
+// ═══════════════════════════════════════════
 function updateCheckState() {
   whiteInCheck=isInCheck('white',board,mimicType,blackMimicType);
   blackInCheck=isInCheck('black',board,mimicType,blackMimicType);
 }
-
 function checkEnd() {
   const wK=board.flat().some(p=>p?.type==='K'&&p?.color==='white');
   const bK=board.flat().some(p=>p?.type==='K'&&p?.color==='black');
-  if(!wK){gameOver=true;updateStatus('😈 Qalib: Qara! Boss qazandı!');}
-  if(!bK){gameOver=true;updateStatus('🏆 Qalib: Sən! Boss məğlub edildi!');}
-  // Check for checkmate (no legal moves while in check)
+  if(!wK){gameOver=true;stopTimer();updateStatus('😈 Qalib: Qara! Boss qazandı!');return;}
+  if(!bK){gameOver=true;stopTimer();updateStatus('🏆 Qalib: Sən! Boss məğlub edildi!');return;}
   if(!gameOver) {
-    const whiteMoves=getAllLegalMovesFor('white');
-    if(whiteMoves.length===0&&whiteInCheck){gameOver=true;updateStatus('♟ Mat! Qalib: Qara!');}
-    const blackMoves=getAllLegalMovesFor('black');
-    if(blackMoves.length===0&&blackInCheck){gameOver=true;updateStatus('♟ Mat! Qalib: Sən!');}
+    const wMoves=getAllLegalMovesFor('white');
+    if(wMoves.length===0&&whiteInCheck){gameOver=true;stopTimer();updateStatus('♟ Mat! Qalib: Qara!');}
+    const bMoves=getAllLegalMovesFor('black');
+    if(bMoves.length===0&&blackInCheck){gameOver=true;stopTimer();updateStatus('♟ Mat! Qalib: Sən!');}
   }
 }
-
-function getAllLegalMovesFor(color) {
-  const all=[];
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++)
-    if(board[r][c]?.color===color) getLegalMoves(r,c).forEach(m=>all.push({fr:r,fc:c,...m}));
-  return all;
-}
-
 function updateStatus(msg) {
   const bar=document.getElementById('status-bar');
-  if(msg){bar.textContent=msg;bar.classList.remove('check');return;}
+  if(msg){bar.textContent=msg;bar.className='';return;}
   if(gameOver) return;
-  if(whiteInCheck) {
-    bar.textContent='⚠️ ŞAHA HÜCUM! Şahını qoru!';
-    bar.classList.add('check');
-  } else {
-    bar.textContent=turn==='white'?'⚪ Sənin növbən — ağ daşlar':'⚫ Rəqib düşünür...';
-    bar.classList.remove('check');
-  }
+  if(whiteInCheck) { bar.textContent='⚠️ ŞAHA HÜCUM! Şahını qoru!'; bar.className='check'; }
+  else { bar.textContent=turn==='white'?'⚪ Sənin növbən — ağ daşlar':'⚫ Rəqib düşünür...'; bar.className=''; }
 }
-
 function updateCemeteryUI() {
   document.getElementById('cemetery-list').textContent=
     cemetery.length?'♙ × '+cemetery.length+' (Necromancer qaytara bilər)':'—';
 }
 function updateMimicUI() {
-  const wt=mimicType,bt=blackMimicType;
-  let txt='';
+  const wt=mimicType,bt=blackMimicType; let txt='';
   if(wt) txt+='Ağ Mimic: '+PIECE_DEFS[wt]?.name+' ';
   if(bt) txt+='Qara Mimic: '+PIECE_DEFS[bt]?.name;
   document.getElementById('mimic-status').textContent=txt||'Normal (1 xana hər istiqamət)';
 }
 
-// ── CLICK ──
+// ═══════════════════════════════════════════
+// CLICK HANDLER
+// ═══════════════════════════════════════════
 function cellClick(r,c) {
   if(gameOver||turn!=='white') return;
   const piece=board[r][c];
-
   if(selected) {
     const mv=validMoves.find(m=>m.r===r&&m.c===c);
     if(mv) {
+      onPlayerMoveDone();
       doMove(selected[0],selected[1],r,c,mv);
       selected=null; validMoves=[];
       checkEnd();
       if(!gameOver) {
-        turn='black';
-        updateCheckState();
+        turn='black'; updateCheckState();
         renderBoard(); updateStatus();
         updateCemeteryUI(); updateMimicUI();
-        setTimeout(aiMove,750);
+        setTimeout(aiMove, 600);
         return;
       }
     } else {
@@ -652,37 +822,28 @@ function cellClick(r,c) {
   renderBoard();
 }
 
-// ── RENDER ──
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
 function renderBoard() {
   const boardEl=document.getElementById('board');
   boardEl.innerHTML='';
-
-  // Find king positions for check highlight
-  const wKing=findKing('white',board);
-  const bKing=findKing('black',board);
-
+  const wKing=findKing('white',board), bKing=findKing('black',board);
   for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
     const cell=document.createElement('div');
     cell.className='cell '+((r+c)%2===0?'light':'dark');
-
     if(selected&&selected[0]===r&&selected[1]===c) cell.classList.add('selected');
     if(lastMove) {
       const[[r1,c1],[r2,c2]]=lastMove;
       if(r===r1&&c===c1) cell.classList.add('last-move-a');
       if(r===r2&&c===c2) cell.classList.add('last-move-b');
     }
-    // Check highlight on king
     if(whiteInCheck&&wKing&&r===wKing[0]&&c===wKing[1]) cell.classList.add('in-check');
     if(blackInCheck&&bKing&&r===bKing[0]&&c===bKing[1]) cell.classList.add('in-check');
-
     if(validMoves.length) {
       const mv=validMoves.find(m=>m.r===r&&m.c===c);
-      if(mv) {
-        if(mv.swap) cell.classList.add('swap-move');
-        else cell.classList.add(board[r][c]?'capture-move':'valid-move');
-      }
+      if(mv) cell.classList.add(mv.swap?'swap-move':(board[r][c]?'capture-move':'valid-move'));
     }
-
     const piece=board[r][c];
     if(piece) {
       const pd=PIECE_DEFS[piece.type];
@@ -698,7 +859,11 @@ function renderBoard() {
   }
 }
 
+// ═══════════════════════════════════════════
+// TOOLTIP — only shown in Bebe mode
+// ═══════════════════════════════════════════
 function showTip(e,r,c) {
+  if(!DIFFICULTIES[difficulty].showInfo) return;
   const piece=board[r][c]; if(!piece){hideTip();return;}
   const pd=PIECE_DEFS[piece.type];
   const owner=piece.color==='white'?'Sənin fiqurın':'Rəqib fiquru';
@@ -715,41 +880,60 @@ function showTip(e,r,c) {
 }
 function hideTip(){document.getElementById('tooltip').style.display='none';}
 
+// ═══════════════════════════════════════════
+// LEGEND
+// ═══════════════════════════════════════════
 function renderLegend() {
   const leg=document.getElementById('legend');
   leg.innerHTML='';
+  if(!DIFFICULTIES[difficulty].showInfo) return;
   const onBoard=new Set();
   board.flat().forEach(p=>{if(p&&PIECE_DEFS[p.type]?.special)onBoard.add(p.type);});
   ALL_SPECIAL.forEach(type=>{
-    const pd=PIECE_DEFS[type];
-    const active=onBoard.has(type);
+    const pd=PIECE_DEFS[type], active=onBoard.has(type);
     const card=document.createElement('div');
-    card.className='legend-card';
-    card.style.opacity=active?'1':'0.45';
-    card.innerHTML=`
-      <div class="lc-top">
-        <span class="lc-icon">${pd.sym}</span>
-        <span class="lc-name">${pd.name}</span>
-        <span class="lc-badge${ultraMode?' both':''}">
-          ${active?(ultraMode?'Hər ikisi':'Lövhədə'):'Məğlub'}
-        </span>
-      </div>
-      <div class="lc-desc">${pd.desc}</div>`;
+    card.className='legend-card'; card.style.opacity=active?'1':'0.45';
+    card.innerHTML=`<div class="lc-top"><span class="lc-icon">${pd.sym}</span><span class="lc-name">${pd.name}</span><span class="lc-badge${ultraMode?' both':''}">${active?(ultraMode?'Hər ikisi':'Lövhədə'):'Məğlub'}</span></div><div class="lc-desc">${pd.desc}</div>`;
     leg.appendChild(card);
   });
 }
 
-function resetGame() {
+// ═══════════════════════════════════════════
+// SECRET CODE
+// ═══════════════════════════════════════════
+document.getElementById('secret-input').addEventListener('input',function(){
+  if(this.value==='2467'){
+    this.value='';
+    if(!ultraMode){ultraMode=true;applyUltra();}
+  }
+});
+function applyUltra(){
+  document.getElementById('secret-hint').textContent='🔓 Ultra';
+  document.getElementById('secret-hint').classList.add('active');
+  document.getElementById('ultra-banner').classList.add('show');
+  resetGame();
+}
+
+// ═══════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════
+function resetGame(){
+  stopTimer();
   selected=null; validMoves=[]; turn='white'; lastMove=null; gameOver=false;
   cemetery=[]; mimicType=null; blackMimicType=null;
   whiteInCheck=false; blackInCheck=false;
-  initBoard();
-  updateCheckState();
+  currentTimeLimit = DIFFICULTIES[difficulty].timeLimit;
+  initBoard(); updateCheckState();
   renderBoard(); renderLegend(); updateStatus();
-  document.getElementById('status-bar').classList.remove('check');
+  updateCemeteryUI(); updateMimicUI();
+  document.getElementById('status-bar').className='';
+  // Start first timer
+  startTimer();
 }
 
-resetGame();
+// Show difficulty screen on load
+document.getElementById('diff-screen').style.display='flex';
+document.getElementById('game-screen').style.display='none';
 </script>
 </body>
 </html>
