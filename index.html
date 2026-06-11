@@ -8,37 +8,31 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: Arial, sans-serif;
-  background: #1a1a2e;
-  color: #e0e0e0;
+  background: #1a1a2e; color: #e0e0e0;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 16px;
-  gap: 14px;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 16px; gap: 14px;
 }
 
 #secret-bar {
   display: flex; align-items: center; gap: 8px;
-  background: #0d0d1a; border: 1px solid #1a1a1a;
+  background: #0d0d1a; border: 1px solid #111;
   border-radius: 8px; padding: 6px 14px;
   width: 100%; max-width: 510px;
 }
-#secret-bar label { font-size: 11px; color: #1e1e1e; white-space: nowrap; }
+#secret-bar label { font-size: 11px; color: #111; }
 #secret-input {
   background: transparent; border: none; outline: none;
-  color: #1e1e1e; font-size: 13px; font-family: monospace;
+  color: #111; font-size: 13px; font-family: monospace;
   width: 60px; caret-color: transparent; letter-spacing: 4px;
 }
 #secret-input:focus { color: #333; }
-#secret-hint { font-size: 11px; color: #1a1a1a; margin-left: auto; transition: color 0.3s; }
+#secret-hint { font-size: 11px; color: #111; margin-left: auto; transition: color 0.3s; }
 #secret-hint.active { color: #9F7FDD; }
 
 #ultra-banner {
-  display: none;
-  border: 1px solid #9F7FDD; border-radius: 8px;
-  padding: 10px 20px; text-align: center;
-  max-width: 510px; width: 100%;
+  display: none; border: 1px solid #9F7FDD; border-radius: 8px;
+  padding: 10px 20px; text-align: center; max-width: 510px; width: 100%;
   background: #1a1030;
 }
 #ultra-banner.show { display: block; }
@@ -55,6 +49,7 @@ body {
   min-width: 320px; max-width: 510px; width: 100%;
   text-align: center; font-weight: 500;
 }
+#status-bar.check { border-color: #cc3333; color: #ff8888; }
 
 #board {
   display: grid;
@@ -74,28 +69,29 @@ body {
 .cell.selected    { background: #7fc97f !important; }
 .cell.last-move-a { background: #cdd16f !important; }
 .cell.last-move-b { background: #aaa23a !important; }
+.cell.in-check {
+  background: #cc2222 !important;
+  box-shadow: inset 0 0 0 3px #ff4444;
+}
 .cell.valid-move::after {
   content:''; position:absolute;
   width:20px; height:20px;
   background:rgba(0,0,0,0.22); border-radius:50%; pointer-events:none;
 }
 .cell.capture-move::after {
-  content:''; position:absolute;
-  width:54px; height:54px; border-radius:50%;
-  border:4px solid rgba(200,0,0,0.45); pointer-events:none;
+  content:''; position:absolute; width:54px; height:54px; border-radius:50%;
+  border:4px solid rgba(200,0,0,0.5); pointer-events:none;
 }
 .cell.swap-move::after {
-  content:''; position:absolute;
-  width:54px; height:54px; border-radius:50%;
-  border:4px solid rgba(100,100,255,0.55); pointer-events:none;
+  content:''; position:absolute; width:54px; height:54px; border-radius:50%;
+  border:4px solid rgba(80,80,255,0.55); pointer-events:none;
 }
 
 .piece {
   width:52px; height:52px;
   display:flex; align-items:center; justify-content:center;
   border-radius:50%; font-size:26px;
-  position:relative; z-index:2;
-  transition: transform 0.1s;
+  position:relative; z-index:2; transition: transform 0.1s;
 }
 .piece:hover { transform: scale(1.1); }
 .piece.white { filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5)); }
@@ -104,8 +100,7 @@ body {
 .piece.black.special-glow { filter: brightness(0.38) drop-shadow(0 0 6px #9F7FDD); }
 
 #panels {
-  display: flex; gap: 12px; max-width: 510px; width: 100%;
-  flex-wrap: wrap;
+  display: flex; gap: 12px; max-width: 510px; width: 100%; flex-wrap: wrap;
 }
 #cemetery-panel, #mimic-panel {
   flex: 1; min-width: 200px;
@@ -116,9 +111,7 @@ body {
   font-size: 11px; color: #888; margin-bottom: 6px; font-weight: 600;
   text-transform: uppercase; letter-spacing: 0.5px;
 }
-#cemetery-list, #mimic-status {
-  font-size: 12px; color: #aaa; min-height: 20px;
-}
+#cemetery-list, #mimic-status { font-size: 12px; color: #aaa; min-height: 20px; }
 
 #legend {
   display: grid; grid-template-columns: 1fr 1fr;
@@ -166,20 +159,16 @@ body {
   <input id="secret-input" type="password" maxlength="4" autocomplete="off" placeholder="····" spellcheck="false">
   <span id="secret-hint">——</span>
 </div>
-
 <div id="ultra-banner">
   <h2>⚔️ ULTRA REJİM AÇILDİ</h2>
   <p>İndi sən də xüsusi fiqurlarla oynayırsan!</p>
 </div>
-
 <div id="header">
   <h1>👑 Boss Chess</h1>
   <p id="header-sub">Normal daşlarla 7 xüsusi fiqurun üstündən qalib gəl</p>
 </div>
-
 <div id="status-bar">Sənin növbən — ağ daşlar</div>
 <div id="board"></div>
-
 <div id="panels">
   <div id="cemetery-panel">
     <h3>⚰️ Məzarlıq (qara piyadalar)</h3>
@@ -190,161 +179,146 @@ body {
     <div id="mimic-status">Normal (1 xana hər istiqamət)</div>
   </div>
 </div>
-
 <div id="legend"></div>
-
 <div id="controls">
   <button onclick="resetGame()">🔄 Yenidən başla</button>
 </div>
-
 <div id="footer">Siçanı fiqurun üstünə gətir — qaydanı gör</div>
 <div id="tooltip"></div>
 
 <script>
-// ── PIECE DEFINITIONS ──
 const PIECE_DEFS = {
-  K: { name:'Şah',      sym:'♔', special:false, desc:'Hər istiqamətə 1 xana.' },
-  Q: { name:'Vəzir',    sym:'♕', special:false, desc:'Hər istiqamətə istədiyi qədər.' },
-  R: { name:'Top',      sym:'♖', special:false, desc:'Üfüqi və şaquli hərəkət.' },
-  B: { name:'Fil',      sym:'♗', special:false, desc:'Çapraz hərəkət.' },
-  N: { name:'At',       sym:'♘', special:false, desc:'L fiquru ilə atlar.' },
-  P: { name:'Piyada',   sym:'♙', special:false, desc:'İrəliyə 1 (ilk addımda 2), çapraza vurur.' },
-
-  PH: { name:'Phantom',     sym:'👻', special:true,
-        desc:'Fil kimi çapraz gedir. Digər fiqurların içindən keçər. Şahı birbaşa vura bilmir.' },
-  NC: { name:'Necromancer', sym:'☠️', special:true,
-        desc:'1 xana hər istiqamətdə. Məhv olmuş öz piyadalarından birini lövhəyə qaytara bilər.' },
-  TP: { name:'Teleporter',  sym:'🌀', special:true,
-        desc:'Tam 2 xana uzağa teleportasiya. İçindən keçər. Şahı birbaşa vura bilmir.' },
-  AS: { name:'Assassin',    sym:'🗡️', special:true,
-        desc:'Tam 4-5 xana uzağa gedir. Vurduqda özü də silinir. Şahı birbaşa vura bilmir.' },
-  MM: { name:'Mimic',       sym:'🎭', special:true,
-        desc:'Adi halda 1 xana hər istiqamətdə. Fiqur vurduqda onun xüsusiyyətlərini mənimsəyir.' },
-  RH: { name:'Rhino',       sym:'🦏', special:true,
-        desc:'At + Fil birlikdə. Eyni anda iki figurun gücü!' },
-  BS: { name:'Backstabber', sym:'🔪', special:true,
-        desc:'2 xana uzaqdakı fiqurla yer dəyişər. Şahla yer dəyişə bilmir.' },
+  K:  { name:'Şah',        sym:'♔', special:false, desc:'Hər istiqamətə 1 xana.' },
+  Q:  { name:'Vəzir',      sym:'♕', special:false, desc:'Hər istiqamətə istədiyi qədər.' },
+  R:  { name:'Top',        sym:'♖', special:false, desc:'Üfüqi və şaquli hərəkət.' },
+  B:  { name:'Fil',        sym:'♗', special:false, desc:'Çapraz hərəkət.' },
+  N:  { name:'At',         sym:'♘', special:false, desc:'L fiquru ilə atlar.' },
+  P:  { name:'Piyada',     sym:'♙', special:false, desc:'İrəliyə 1 (ilk addımda 2), çapraza vurur.' },
+  PH: { name:'Phantom',    sym:'👻', special:true,  desc:'Fil kimi çapraz gedir. Digər fiqurların içindən keçər. Şahı birbaşa vura bilmir.' },
+  NC: { name:'Necromancer',sym:'☠️', special:true,  desc:'1 xana hər istiqamətdə. Məhv olmuş öz piyadalarından birini lövhəyə qaytara bilər.' },
+  TP: { name:'Teleporter', sym:'🌀', special:true,  desc:'Tam 2 xana uzağa teleportasiya. İçindən keçər. Şahı birbaşa vura bilmir.' },
+  AS: { name:'Assassin',   sym:'🗡️', special:true,  desc:'Tam 4-5 xana (Manhattan) uzağa gedir. Vurduqda özü də silinir. Şahı birbaşa vura bilmir.' },
+  MM: { name:'Mimic',      sym:'🎭', special:true,  desc:'Adi halda 1 xana hər istiqamətdə. Fiqur vurduqda onun xüsusiyyətlərini mənimsəyir.' },
+  RH: { name:'Rhino',      sym:'🦏', special:true,  desc:'At + Fil birlikdə. Eyni anda iki fiqurun gücü!' },
+  BS: { name:'Backstabber',sym:'🔪', special:true,  desc:'2 xana uzaqdakı fiqurla yer dəyişər (Chebyshev=2). Şahla yer dəyişə bilmir.' },
 };
 
 const ALL_SPECIAL = ['PH','NC','TP','AS','MM','RH','BS'];
+// Black back-row pieces that are NEVER replaced by specials
+const BLACK_PROTECTED = new Set(['K','Q','P']);
 
-// ── STATE ──
-let board = [];
-let selected = null;
-let validMoves = [];
-let turn = 'white';
-let lastMove = null;
-let gameOver = false;
-let ultraMode = false;
-let cemetery = [];          // captured black pawns
-let mimicType = null;       // white mimic absorbed type
-let blackMimicType = null;  // black mimic absorbed type
+let board=[], selected=null, validMoves=[], turn='white';
+let lastMove=null, gameOver=false, ultraMode=false;
+let cemetery=[], mimicType=null, blackMimicType=null;
+let whiteInCheck=false, blackInCheck=false;
 
 // ── SECRET CODE ──
-const secretInput = document.getElementById('secret-input');
-secretInput.addEventListener('input', () => {
-  if (secretInput.value === '2467') {
-    if (!ultraMode) { ultraMode = true; applyUltra(); }
-    secretInput.value = '';
+document.getElementById('secret-input').addEventListener('input', function() {
+  if (this.value === '2467') {
+    this.value = '';
+    if (!ultraMode) { ultraMode=true; applyUltra(); }
   }
 });
 function applyUltra() {
-  document.getElementById('secret-hint').textContent = '🔓 Ultra';
+  document.getElementById('secret-hint').textContent='🔓 Ultra';
   document.getElementById('secret-hint').classList.add('active');
   document.getElementById('ultra-banner').classList.add('show');
-  document.getElementById('header-sub').textContent = 'Ultra rejim — hər iki tərəf tam silahlanıb!';
+  document.getElementById('header-sub').textContent='Ultra rejim — hər iki tərəf tam silahlanıb!';
   resetGame();
 }
 
-// ── RANDOM SPECIAL LAYOUT ──
-// Returns 8 random specials for a back row, k of them special, rest normal
-function randomBackRow(color, useSpecial) {
-  // Pick 3 random specials from ALL_SPECIAL (no repeats)
-  const shuffled = [...ALL_SPECIAL].sort(() => Math.random() - 0.5);
-  const picked = shuffled.slice(0, 3);
-  // Back row: R _ B Q K B _ R with 3 specials inserted at random interior spots
-  // We place: R, K fixed at edges/center; fill remaining with mix
-  // Positions 0-7: fix R at 0,7 and K at 4
-  // Remaining: 1,2,3,5,6 → 5 slots: fill with picked specials + normal pieces
-  const normals = ['Q','B','N','B','N'];
-  const interior = [...picked, ...normals.slice(0, 5 - picked.length)];
-  interior.sort(() => Math.random() - 0.5);
-  return [
-    'R', interior[0], interior[1], interior[2], 'K', interior[3], interior[4], 'R'
-  ];
-}
+// ── BOARD INIT ──
+function shuffle(arr) { return [...arr].sort(()=>Math.random()-0.5); }
 
-function randomPawnRow(color, useSpecial) {
-  if (!useSpecial) return Array(8).fill('P');
-  // Insert 1-2 specials randomly in pawn row
-  const row = Array(8).fill('P');
-  const shuffled = [...ALL_SPECIAL].sort(() => Math.random() - 0.5);
-  const count = Math.floor(Math.random() * 2) + 1;
-  const positions = [1,2,3,4,5,6].sort(() => Math.random() - 0.5).slice(0, count);
-  positions.forEach((pos, i) => { row[pos] = shuffled[i]; });
+function makeBlackBackRow() {
+  // Positions: 0=R, 4=K fixed. 1,2,3,5,6,7 are candidates.
+  // R(7) also fixed. Inner slots: 1,2,3,5,6 (5 slots)
+  // Normal inner pieces: N,B,Q,B,N  → replace non-Q,B candidates with specials
+  // Rule: K,Q,P never become special → Q stays Q
+  // Replace R,N,B at random inner positions with specials
+  const specials = shuffle(ALL_SPECIAL);
+  // Inner slots that can be specials: originally N, B, B, N (4 pieces, not Q)
+  // Layout base: R  N  B  Q  K  B  N  R
+  //              0  1  2  3  4  5  6  7
+  // Eligible for replacement: positions 1,2,5,6 (N and B, not Q at 3)
+  const eligible = shuffle([1,2,5,6]);
+  // Replace 2-4 of them randomly
+  const replaceCount = 2 + Math.floor(Math.random()*3); // 2,3 or 4
+  const row = ['R','N','B','Q','K','B','N','R'];
+  const used = [];
+  for (let i=0; i<Math.min(replaceCount, eligible.length, specials.length); i++) {
+    row[eligible[i]] = specials[i];
+    used.push(specials[i]);
+  }
   return row;
 }
 
-// ── INIT BOARD ──
-function initBoard() {
-  board = Array(8).fill(null).map(() => Array(8).fill(null));
-  cemetery = [];
-  mimicType = null;
-  blackMimicType = null;
+function makeBlackPawnRow() {
+  // Pawn row: never replace pawns with specials (rule: P protected)
+  return Array(8).fill('P');
+  // Actually user said "piyada sehrli daşa çevrilməsin" — so all P stays P
+}
 
-  // Black: always has specials, random each game
-  const blackBack  = randomBackRow('black', true);
-  const blackPawns = randomPawnRow('black', true);
-  for (let c = 0; c < 8; c++) board[0][c] = { type: blackBack[c],  color: 'black' };
-  for (let c = 0; c < 8; c++) board[1][c] = { type: blackPawns[c], color: 'black' };
+function makeWhiteBackRow(useSpecial) {
+  if (!useSpecial) return ['R','N','B','Q','K','B','N','R'];
+  const specials = shuffle(ALL_SPECIAL);
+  const eligible = shuffle([1,2,5,6]);
+  const replaceCount = 2 + Math.floor(Math.random()*3);
+  const row = ['R','N','B','Q','K','B','N','R'];
+  for (let i=0; i<Math.min(replaceCount, eligible.length, specials.length); i++) {
+    row[eligible[i]] = specials[i];
+  }
+  return row;
+}
+
+function initBoard() {
+  board = Array(8).fill(null).map(()=>Array(8).fill(null));
+  cemetery=[]; mimicType=null; blackMimicType=null;
+  whiteInCheck=false; blackInCheck=false;
+
+  const blackBack  = makeBlackBackRow();
+  const blackPawns = makeBlackPawnRow();
+  for(let c=0;c<8;c++) board[0][c]={type:blackBack[c],  color:'black'};
+  for(let c=0;c<8;c++) board[1][c]={type:blackPawns[c], color:'black'};
 
   if (ultraMode) {
-    const whiteBack  = randomBackRow('white', true);
-    const whitePawns = randomPawnRow('white', true);
-    for (let c = 0; c < 8; c++) board[7][c] = { type: whiteBack[c],  color: 'white' };
-    for (let c = 0; c < 8; c++) board[6][c] = { type: whitePawns[c], color: 'white' };
-  } else {
-    // Normal: white has only standard pieces
-    const whiteBack  = ['R','N','B','Q','K','B','N','R'];
+    const whiteBack  = makeWhiteBackRow(true);
     const whitePawns = Array(8).fill('P');
-    for (let c = 0; c < 8; c++) board[7][c] = { type: whiteBack[c],  color: 'white' };
-    for (let c = 0; c < 8; c++) board[6][c] = { type: whitePawns[c], color: 'white' };
+    for(let c=0;c<8;c++) board[7][c]={type:whiteBack[c],  color:'white'};
+    for(let c=0;c<8;c++) board[6][c]={type:whitePawns[c], color:'white'};
+  } else {
+    for(let c=0;c<8;c++) board[7][c]={type:['R','N','B','Q','K','B','N','R'][c], color:'white'};
+    for(let c=0;c<8;c++) board[6][c]={type:'P', color:'white'};
   }
 }
 
-// ── MOVE GENERATION ──
-function getMoves(row, col, forDisplay) {
-  const piece = board[row][col];
+// ── MOVE GENERATION (pure, no side effects) ──
+function getRawMoves(row, col, brd, mType, bmType) {
+  const piece = brd[row][col];
   if (!piece) return [];
-  const moves = [];   // {r, c, swap, assassin, necro}
-  const enemy = piece.color === 'white' ? 'black' : 'white';
+  const moves = [];
+  const enemy = piece.color==='white'?'black':'white';
   const ally  = piece.color;
-
-  // Effective type (mimic)
   let eff = piece.type;
-  if (piece.type === 'MM') {
-    eff = (piece.color === 'white' ? mimicType : blackMimicType) || 'MM';
+  if (piece.type==='MM') eff=(piece.color==='white'?mType:bmType)||'MM';
+
+  function add(r,c,meta={}) {
+    if(r<0||r>7||c<0||c>7) return;
+    if(brd[r][c]?.color===ally) return;
+    if(meta.noKing && brd[r][c]?.type==='K' && brd[r][c]?.color===enemy) return;
+    moves.push({r,c,...meta});
   }
 
-  function add(r, c, meta={}) {
-    if (r<0||r>7||c<0||c>7) return false;
-    if (board[r][c]?.color === ally) return false;
-    // Cannot capture enemy King with special non-direct pieces
-    if (meta.noKing && board[r][c]?.type === 'K' && board[r][c]?.color === enemy) return false;
-    moves.push({ r, c, ...meta });
-    return !board[r][c];
-  }
-
-  function slide(dr, dc, throughPieces=false, noKing=false) {
+  function slide(dr,dc,through=false,noKing=false) {
     let r=row+dr, c=col+dc;
-    while (r>=0&&r<=7&&c>=0&&c<=7) {
-      if (board[r][c]?.color===ally) { r+=dr; c+=dc; continue; }
-      if (board[r][c]?.color===enemy) {
-        if (noKing && board[r][c]?.type==='K') { if(!throughPieces) break; r+=dr;c+=dc;continue; }
-        moves.push({ r, c, noKing });
-        if (!throughPieces) break;
+    while(r>=0&&r<=7&&c>=0&&c<=7) {
+      if(brd[r][c]?.color===ally) { if(through){r+=dr;c+=dc;continue;} else break; }
+      if(brd[r][c]?.color===enemy) {
+        if(noKing && brd[r][c]?.type==='K') { if(through){r+=dr;c+=dc;continue;} else break; }
+        moves.push({r,c});
+        if(!through) break;
       } else {
-        moves.push({ r, c });
+        moves.push({r,c});
       }
       r+=dr; c+=dc;
     }
@@ -352,19 +326,31 @@ function getMoves(row, col, forDisplay) {
 
   function knight() {
     [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]
-      .forEach(([dr,dc]) => add(row+dr, col+dc));
+      .forEach(([dr,dc])=>add(row+dr,col+dc));
   }
 
-  switch (eff) {
+  if (eff==='BS') {
+    for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++) {
+      if(Math.max(Math.abs(dr),Math.abs(dc))!==2) continue;
+      const r2=row+dr, c2=col+dc;
+      if(r2<0||r2>7||c2<0||c2>7) continue;
+      if(!brd[r2][c2]) continue;
+      if(brd[r2][c2]?.type==='K') continue;
+      moves.push({r:r2,c:c2,swap:true});
+    }
+    return moves;
+  }
+
+  switch(eff) {
     case 'P': {
-      const dir   = piece.color==='white' ? -1 : 1;
-      const start = piece.color==='white' ? 6 : 1;
-      if (!board[row+dir]?.[col]) {
-        moves.push({r:row+dir, c:col});
-        if (row===start && !board[row+2*dir]?.[col]) moves.push({r:row+2*dir, c:col});
+      const dir=piece.color==='white'?-1:1;
+      const start=piece.color==='white'?6:1;
+      if(!brd[row+dir]?.[col]) {
+        moves.push({r:row+dir,c:col});
+        if(row===start&&!brd[row+2*dir]?.[col]) moves.push({r:row+2*dir,c:col});
       }
-      [-1,1].forEach(dc => {
-        if (board[row+dir]?.[col+dc]?.color===enemy) moves.push({r:row+dir, c:col+dc});
+      [-1,1].forEach(dc=>{
+        if(brd[row+dir]?.[col+dc]?.color===enemy) moves.push({r:row+dir,c:col+dc});
       });
       break;
     }
@@ -373,207 +359,272 @@ function getMoves(row, col, forDisplay) {
     case 'Q': [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc)); break;
     case 'K': [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc)); break;
     case 'N': knight(); break;
-
-    case 'PH': // Ghost bishop — passes through, cannot capture King
-      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc,true,true));
-      break;
-
-    case 'NC': { // Necromancer — 1 step any + necro resurrect moves
+    case 'PH': [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc,true,true)); break;
+    case 'NC': {
       [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc));
-      // Resurrect: show empty squares in own back area as necro targets
-      if (cemetery.length > 0) {
-        const backRow = piece.color==='white' ? 7 : 0; // resurrect on own back?
-        // Actually resurrect on any empty square adjacent
-        for (let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++) {
+      if(cemetery.length>0) {
+        for(let dr=-1;dr<=1;dr++) for(let dc=-1;dc<=1;dc++) {
           if(dr===0&&dc===0) continue;
-          const r2=row+dr, c2=col+dc;
-          if(r2>=0&&r2<=7&&c2>=0&&c2<=7&&!board[r2][c2])
-            moves.push({r:r2, c:c2, necro:true});
+          const r2=row+dr,c2=col+dc;
+          if(r2>=0&&r2<=7&&c2>=0&&c2<=7&&!brd[r2][c2])
+            moves.push({r:r2,c:c2,necro:true});
         }
       }
       break;
     }
-
-    case 'TP': // Teleporter — exactly 2 squares, through pieces, no King
+    case 'TP':
       for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++) {
         if((Math.abs(dr)===2||Math.abs(dc)===2)&&(dr!==0||dc!==0)) {
-          const r2=row+dr, c2=col+dc;
+          const r2=row+dr,c2=col+dc;
           if(r2<0||r2>7||c2<0||c2>7) continue;
-          if(board[r2][c2]?.color===ally) continue;
-          if(board[r2][c2]?.type==='K'&&board[r2][c2]?.color===enemy) continue;
-          moves.push({r:r2, c:c2});
+          if(brd[r2][c2]?.color===ally) continue;
+          if(brd[r2][c2]?.type==='K'&&brd[r2][c2]?.color===enemy) continue;
+          moves.push({r:r2,c:c2});
         }
       }
       break;
-
-    case 'AS': // Assassin — exactly 4 or 5 squares (Manhattan), kamikaze, no King
+    case 'AS':
       for(let r2=0;r2<8;r2++) for(let c2=0;c2<8;c2++) {
         const dist=Math.abs(r2-row)+Math.abs(c2-col);
         if(dist!==4&&dist!==5) continue;
-        if(board[r2][c2]?.color===ally) continue;
-        if(board[r2][c2]?.type==='K'&&board[r2][c2]?.color===enemy) continue;
-        if(board[r2][c2]?.color===enemy) moves.push({r:r2,c:c2,assassin:true});
+        if(brd[r2][c2]?.color===ally) continue;
+        if(brd[r2][c2]?.type==='K'&&brd[r2][c2]?.color===enemy) continue;
+        if(brd[r2][c2]?.color===enemy) moves.push({r:r2,c:c2,assassin:true});
         else moves.push({r:r2,c:c2});
       }
       break;
-
-    case 'MM': // Default mimic — 1 step any direction
+    case 'MM':
       [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc));
       break;
-
-    case 'RH': // Rhino — Knight + Bishop
+    case 'RH':
       knight();
       [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc));
       break;
-
-    case 'BS': { // Backstabber — swap with piece 2 squares away, not King
-      for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++) {
-        if(Math.abs(dr)+Math.abs(dc)!==2) continue; // exactly 2 manhattan (no diag-diag)
-        // Actually: 2 squares in any direction (orthogonal or diagonal)
-        if(!(Math.abs(dr)===2&&dc===0)&&!(Math.abs(dc)===2&&dr===0)&&
-           !(Math.abs(dr)===1&&Math.abs(dc)===1)) continue; // hmm let's just do 2-step radius
-        const r2=row+dr, c2=col+dc;
-        if(r2<0||r2>7||c2<0||c2>7) continue;
-        if(!board[r2][c2]) continue; // must have a piece to swap
-        if(board[r2][c2]?.type==='K') continue; // not with King
-        moves.push({r:r2, c:c2, swap:true});
-      }
-      // Also fix: exact 2-square in 8 directions
-      break;
-    }
-  }
-
-  return moves;
-}
-
-// Fix Backstabber to use proper 2-square directions
-function getBackstabberMoves(row, col, piece) {
-  const moves = [];
-  const dirs = [[-2,0],[2,0],[0,-2],[0,2],[-2,-2],[-2,2],[2,-2],[2,2],[-1,-1],[-1,1],[1,-1],[1,1],[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
-  // Use exact 2-step in 8 compass + knight-like? No — spec says "2 xana uzaqdakı kart"
-  // We interpret as Chebyshev distance = 2 (king moves twice)
-  for(let dr=-2;dr<=2;dr++) for(let dc=-2;dc<=2;dc++) {
-    const dist=Math.max(Math.abs(dr),Math.abs(dc));
-    if(dist!==2) continue;
-    const r2=row+dr, c2=col+dc;
-    if(r2<0||r2>7||c2<0||c2>7) continue;
-    if(!board[r2][c2]) continue;
-    if(board[r2][c2]?.type==='K') continue;
-    moves.push({r:r2, c:c2, swap:true});
   }
   return moves;
 }
 
-function getAllMoves(row, col) {
-  const piece = board[row][col];
-  if (!piece) return [];
-  let eff = piece.type;
-  if (piece.type === 'MM') eff = (piece.color==='white'?mimicType:blackMimicType) || 'MM';
-  if (eff === 'BS') return getBackstabberMoves(row, col, piece);
-  return getMoves(row, col);
+// ── CHECK DETECTION ──
+// Is square (tr,tc) attacked by any piece of `attackerColor` on board brd?
+function isSquareAttacked(tr, tc, attackerColor, brd, mT, bmT) {
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    if(brd[r][c]?.color!==attackerColor) continue;
+    const moves = getRawMoves(r,c,brd,mT,bmT);
+    if(moves.some(m=>m.r===tr&&m.c===tc&&!m.necro&&!m.swap)) return true;
+  }
+  return false;
+}
+
+function findKing(color, brd) {
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++)
+    if(brd[r][c]?.type==='K'&&brd[r][c]?.color===color) return [r,c];
+  return null;
+}
+
+function isInCheck(color, brd, mT, bmT) {
+  const kPos = findKing(color, brd);
+  if(!kPos) return false;
+  const attacker = color==='white'?'black':'white';
+  return isSquareAttacked(kPos[0], kPos[1], attacker, brd, mT, bmT);
+}
+
+// Simulate move and check if it leaves own king in check
+function moveLeavesInCheck(fr,fc,tr,tc,meta,color) {
+  const brd = board.map(row=>row.map(c=>c?{...c}:null));
+  applyMoveToBoard(brd,fr,fc,tr,tc,meta);
+  return isInCheck(color, brd, mimicType, blackMimicType);
+}
+
+function applyMoveToBoard(brd,fr,fc,tr,tc,meta) {
+  const piece=brd[fr][fc];
+  if(!piece) return;
+  if(meta?.swap) { const t=brd[tr][tc]; brd[tr][tc]=piece; brd[fr][fc]=t; return; }
+  if(meta?.necro) { brd[tr][tc]={type:'P',color:piece.color}; return; }
+  if(meta?.assassin&&brd[tr][tc]) { brd[tr][tc]=null; brd[fr][fc]=null; return; }
+  brd[tr][tc]=piece; brd[fr][fc]=null;
+}
+
+// Legal moves = raw moves filtered by "doesn't leave own king in check"
+function getLegalMoves(row,col) {
+  const piece=board[row][col];
+  if(!piece) return [];
+  const raw=getRawMoves(row,col,board,mimicType,blackMimicType);
+  return raw.filter(m=>!moveLeavesInCheck(row,col,m.r,m.c,m,piece.color));
+}
+
+// ── PIECE VALUE for AI scoring ──
+const PIECE_VALUE = { P:1, N:3, B:3, R:5, Q:9, K:100,
+  PH:4, NC:3, TP:3, AS:3, MM:3, RH:6, BS:2 };
+
+function boardScore() {
+  // Positive = good for black (AI)
+  let score=0;
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    const p=board[r][c]; if(!p) continue;
+    const v=PIECE_VALUE[p.type]||2;
+    score += p.color==='black'?v:-v;
+  }
+  return score;
 }
 
 // ── EXECUTE MOVE ──
-function doMove(fr, fc, tr, tc, moveMeta) {
-  const piece = board[fr][fc];
-  const target = board[tr][tc];
-
-  if (moveMeta?.swap) {
-    // Backstabber swap
-    board[fr][fc] = target;
-    board[tr][tc] = piece;
-    lastMove = [[fr,fc],[tr,tc]];
-    return;
+function doMove(fr,fc,tr,tc,meta) {
+  const piece=board[fr][fc];
+  const target=board[tr][tc];
+  if(meta?.swap) {
+    board[fr][fc]=target; board[tr][tc]=piece;
+    lastMove=[[fr,fc],[tr,tc]]; return;
   }
-
-  if (moveMeta?.necro) {
-    // Necromancer resurrect
-    if (cemetery.length > 0) {
-      const revived = cemetery.pop();
-      board[tr][tc] = { type:'P', color: piece.color };
-      updateCemeteryUI();
-    }
-    lastMove = [[fr,fc],[tr,tc]];
-    return;
+  if(meta?.necro) {
+    if(cemetery.length>0) { cemetery.pop(); board[tr][tc]={type:'P',color:piece.color}; }
+    lastMove=[[fr,fc],[tr,tc]]; return;
   }
-
-  // Capture: track black pawns for cemetery
-  if (target) {
-    if (target.color==='black' && target.type==='P') cemetery.push('P');
-
-    // Mimic absorbs
-    if (piece.type==='MM') {
-      if (piece.color==='white') mimicType = target.type;
-      else blackMimicType = target.type;
-      updateMimicUI();
+  if(target) {
+    if(target.color==='black'&&target.type==='P') cemetery.push('P');
+    if(piece.type==='MM') {
+      if(piece.color==='white') mimicType=target.type;
+      else blackMimicType=target.type;
     }
   }
-
-  // Assassin kamikaze
-  if (moveMeta?.assassin && target) {
-    board[tr][tc] = null;
-    board[fr][fc] = null;
-    lastMove = [[fr,fc],[tr,tc]];
-    return;
+  if(meta?.assassin&&target) {
+    board[tr][tc]=null; board[fr][fc]=null;
+    lastMove=[[fr,fc],[tr,tc]]; return;
   }
-
-  board[tr][tc] = piece;
-  board[fr][fc] = null;
-  lastMove = [[fr,fc],[tr,tc]];
+  board[tr][tc]=piece; board[fr][fc]=null;
+  lastMove=[[fr,fc],[tr,tc]];
 }
 
-// ── AI ──
+// ── AI — Minimax depth 2 ──
+function minimax(depth, maximizing, alpha, beta) {
+  if(depth===0) return boardScore();
+  const color=maximizing?'black':'white';
+  const allMoves=[];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
+    if(board[r][c]?.color===color) {
+      getLegalMoves(r,c).forEach(m=>allMoves.push({fr:r,fc:c,...m}));
+    }
+  }
+  if(!allMoves.length) return maximizing?-1000:1000;
+
+  if(maximizing) {
+    let best=-Infinity;
+    for(const mv of allMoves) {
+      // Save state
+      const saved=board.map(row=>row.map(c=>c?{...c}:null));
+      const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
+      doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
+      const val=minimax(depth-1,false,alpha,beta);
+      // Restore
+      board.forEach((row,r)=>row.forEach((_,c)=>board[r][c]=saved[r][c]));
+      mimicType=smT; blackMimicType=sbmT; cemetery=scem;
+      best=Math.max(best,val);
+      alpha=Math.max(alpha,val);
+      if(beta<=alpha) break;
+    }
+    return best;
+  } else {
+    let best=Infinity;
+    for(const mv of allMoves) {
+      const saved=board.map(row=>row.map(c=>c?{...c}:null));
+      const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
+      doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
+      const val=minimax(depth-1,true,alpha,beta);
+      board.forEach((row,r)=>row.forEach((_,c)=>board[r][c]=saved[r][c]));
+      mimicType=smT; blackMimicType=sbmT; cemetery=scem;
+      best=Math.min(best,val);
+      beta=Math.min(beta,val);
+      if(beta<=alpha) break;
+    }
+    return best;
+  }
+}
+
 function aiMove() {
-  if (gameOver) return;
-  const all = [];
+  if(gameOver) return;
+  const allMoves=[];
   for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
     if(board[r][c]?.color==='black') {
-      getAllMoves(r,c).forEach(m=>all.push({fr:r,fc:c,...m}));
+      getLegalMoves(r,c).forEach(m=>allMoves.push({fr:r,fc:c,...m}));
     }
   }
-  if(!all.length) return;
+  if(!allMoves.length) return;
 
-  // Priority: capture > swap > normal
-  const captures = all.filter(m=>board[m.r][m.c]?.color==='white'&&!m.swap&&!m.necro);
-  const swaps    = all.filter(m=>m.swap);
-  const pool = captures.length ? captures : (swaps.length&&Math.random()>0.5?swaps:all);
-  const mv = pool[Math.floor(Math.random()*pool.length)];
-  doMove(mv.fr, mv.fc, mv.r, mv.c, mv);
+  // Shuffle for variety, then pick best via minimax depth 2
+  const shuffled=shuffle(allMoves);
+  let bestVal=-Infinity, bestMv=shuffled[0];
+  for(const mv of shuffled) {
+    const saved=board.map(row=>row.map(c=>c?{...c}:null));
+    const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
+    doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
+    const val=minimax(1,false,-Infinity,Infinity);
+    board.forEach((row,r)=>row.forEach((_,c)=>board[r][c]=saved[r][c]));
+    mimicType=smT; blackMimicType=sbmT; cemetery=scem;
+    if(val>bestVal) { bestVal=val; bestMv=mv; }
+  }
+  doMove(bestMv.fr,bestMv.fc,bestMv.r,bestMv.c,bestMv);
   checkEnd();
-  turn='white'; renderBoard(); updateStatus();
+  turn='white';
+  updateCheckState();
+  renderBoard();
+  updateStatus();
+  updateCemeteryUI();
+  updateMimicUI();
 }
 
-// ── END CHECK ──
+// ── CHECK/END STATE ──
+function updateCheckState() {
+  whiteInCheck=isInCheck('white',board,mimicType,blackMimicType);
+  blackInCheck=isInCheck('black',board,mimicType,blackMimicType);
+}
+
 function checkEnd() {
   const wK=board.flat().some(p=>p?.type==='K'&&p?.color==='white');
   const bK=board.flat().some(p=>p?.type==='K'&&p?.color==='black');
   if(!wK){gameOver=true;updateStatus('😈 Qalib: Qara! Boss qazandı!');}
   if(!bK){gameOver=true;updateStatus('🏆 Qalib: Sən! Boss məğlub edildi!');}
+  // Check for checkmate (no legal moves while in check)
+  if(!gameOver) {
+    const whiteMoves=getAllLegalMovesFor('white');
+    if(whiteMoves.length===0&&whiteInCheck){gameOver=true;updateStatus('♟ Mat! Qalib: Qara!');}
+    const blackMoves=getAllLegalMovesFor('black');
+    if(blackMoves.length===0&&blackInCheck){gameOver=true;updateStatus('♟ Mat! Qalib: Sən!');}
+  }
 }
 
-// ── STATUS ──
+function getAllLegalMovesFor(color) {
+  const all=[];
+  for(let r=0;r<8;r++) for(let c=0;c<8;c++)
+    if(board[r][c]?.color===color) getLegalMoves(r,c).forEach(m=>all.push({fr:r,fc:c,...m}));
+  return all;
+}
+
 function updateStatus(msg) {
   const bar=document.getElementById('status-bar');
-  if(msg){bar.textContent=msg;return;}
+  if(msg){bar.textContent=msg;bar.classList.remove('check');return;}
   if(gameOver) return;
-  bar.textContent=turn==='white'?'⚪ Sənin növbən — ağ daşlar':'⚫ Rəqib düşünür...';
+  if(whiteInCheck) {
+    bar.textContent='⚠️ ŞAHA HÜCUM! Şahını qoru!';
+    bar.classList.add('check');
+  } else {
+    bar.textContent=turn==='white'?'⚪ Sənin növbən — ağ daşlar':'⚫ Rəqib düşünür...';
+    bar.classList.remove('check');
+  }
 }
 
 function updateCemeteryUI() {
-  const el=document.getElementById('cemetery-list');
-  el.textContent=cemetery.length?'♙ × '+cemetery.length+' (Necromancer qaytara bilər)':'—';
+  document.getElementById('cemetery-list').textContent=
+    cemetery.length?'♙ × '+cemetery.length+' (Necromancer qaytara bilər)':'—';
 }
 function updateMimicUI() {
-  const el=document.getElementById('mimic-status');
-  const wt=mimicType, bt=blackMimicType;
+  const wt=mimicType,bt=blackMimicType;
   let txt='';
   if(wt) txt+='Ağ Mimic: '+PIECE_DEFS[wt]?.name+' ';
   if(bt) txt+='Qara Mimic: '+PIECE_DEFS[bt]?.name;
-  el.textContent=txt||'Normal (1 xana hər istiqamət)';
+  document.getElementById('mimic-status').textContent=txt||'Normal (1 xana hər istiqamət)';
 }
 
 // ── CLICK ──
-function cellClick(r, c) {
+function cellClick(r,c) {
   if(gameOver||turn!=='white') return;
   const piece=board[r][c];
 
@@ -583,13 +634,20 @@ function cellClick(r, c) {
       doMove(selected[0],selected[1],r,c,mv);
       selected=null; validMoves=[];
       checkEnd();
-      if(!gameOver){turn='black';renderBoard();updateStatus();setTimeout(aiMove,750);return;}
+      if(!gameOver) {
+        turn='black';
+        updateCheckState();
+        renderBoard(); updateStatus();
+        updateCemeteryUI(); updateMimicUI();
+        setTimeout(aiMove,750);
+        return;
+      }
     } else {
       selected=null; validMoves=[];
-      if(piece?.color==='white'){selected=[r,c];validMoves=getAllMoves(r,c);}
+      if(piece?.color==='white') { selected=[r,c]; validMoves=getLegalMoves(r,c); }
     }
   } else {
-    if(piece?.color==='white'){selected=[r,c];validMoves=getAllMoves(r,c);}
+    if(piece?.color==='white') { selected=[r,c]; validMoves=getLegalMoves(r,c); }
   }
   renderBoard();
 }
@@ -598,15 +656,25 @@ function cellClick(r, c) {
 function renderBoard() {
   const boardEl=document.getElementById('board');
   boardEl.innerHTML='';
+
+  // Find king positions for check highlight
+  const wKing=findKing('white',board);
+  const bKing=findKing('black',board);
+
   for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
     const cell=document.createElement('div');
     cell.className='cell '+((r+c)%2===0?'light':'dark');
+
     if(selected&&selected[0]===r&&selected[1]===c) cell.classList.add('selected');
-    if(lastMove){
+    if(lastMove) {
       const[[r1,c1],[r2,c2]]=lastMove;
       if(r===r1&&c===c1) cell.classList.add('last-move-a');
       if(r===r2&&c===c2) cell.classList.add('last-move-b');
     }
+    // Check highlight on king
+    if(whiteInCheck&&wKing&&r===wKing[0]&&c===wKing[1]) cell.classList.add('in-check');
+    if(blackInCheck&&bKing&&r===bKing[0]&&c===bKing[1]) cell.classList.add('in-check');
+
     if(validMoves.length) {
       const mv=validMoves.find(m=>m.r===r&&m.c===c);
       if(mv) {
@@ -614,12 +682,12 @@ function renderBoard() {
         else cell.classList.add(board[r][c]?'capture-move':'valid-move');
       }
     }
+
     const piece=board[r][c];
     if(piece) {
       const pd=PIECE_DEFS[piece.type];
       const span=document.createElement('div');
-      const isSpecial=pd.special;
-      span.className='piece '+piece.color+(isSpecial?' special-glow':'');
+      span.className='piece '+piece.color+(pd.special?' special-glow':'');
       span.textContent=pd.sym;
       cell.appendChild(span);
     }
@@ -628,11 +696,8 @@ function renderBoard() {
     cell.addEventListener('mouseleave',hideTip);
     boardEl.appendChild(cell);
   }
-  updateCemeteryUI();
-  updateMimicUI();
 }
 
-// ── TOOLTIP ──
 function showTip(e,r,c) {
   const piece=board[r][c]; if(!piece){hideTip();return;}
   const pd=PIECE_DEFS[piece.type];
@@ -650,14 +715,11 @@ function showTip(e,r,c) {
 }
 function hideTip(){document.getElementById('tooltip').style.display='none';}
 
-// ── LEGEND ──
 function renderLegend() {
   const leg=document.getElementById('legend');
   leg.innerHTML='';
-  // Show which specials are actually on the board
   const onBoard=new Set();
   board.flat().forEach(p=>{if(p&&PIECE_DEFS[p.type]?.special)onBoard.add(p.type);});
-  // Show all 7 special types always
   ALL_SPECIAL.forEach(type=>{
     const pd=PIECE_DEFS[type];
     const active=onBoard.has(type);
@@ -677,14 +739,16 @@ function renderLegend() {
   });
 }
 
-// ── RESET ──
 function resetGame() {
   selected=null; validMoves=[]; turn='white'; lastMove=null; gameOver=false;
   cemetery=[]; mimicType=null; blackMimicType=null;
-  initBoard(); renderBoard(); renderLegend(); updateStatus();
+  whiteInCheck=false; blackInCheck=false;
+  initBoard();
+  updateCheckState();
+  renderBoard(); renderLegend(); updateStatus();
+  document.getElementById('status-bar').classList.remove('check');
 }
 
-// ── START ──
 resetGame();
 </script>
 </body>
