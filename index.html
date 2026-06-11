@@ -365,10 +365,12 @@ const PIECE_DEFS = {
   MM: { name:'Mimic',      sym:'🎭', special:true,  desc:'Adi halda 1 xana hər istiqamətdə. Fiqur vurduqda onun xüsusiyyətlərini mənimsəyir.' },
   RH: { name:'Rhino',      sym:'🦏', special:true,  desc:'At + Fil birlikdə. Eyni anda iki fiqurun gücü!' },
   BS: { name:'Backstabber',sym:'🔪', special:true,  desc:'2 xana uzaqdakı fiqurla yer dəyişər (Chebyshev=2). Şahla yer dəyişə bilmir.' },
-  CL: { name:'Clown',      sym:'🤡', special:true,  desc:'Adi halda 1 xana hər istiqamətdə. Üfüqi/şaquli 2 xana uzağa hücum edər. Bir daş itirərsə onun funksiyalarını alar.' },
-  EX: { name:'Exchanger',  sym:'💱', special:true,  desc:'Rəqib şah ilə yer dəyişər. Yer dəyişdikdə rəng dəyişib rəqib şaha çevrilər; rəqib şah isə əks rəngdəki piyadaya çevrilər.' },
+  CL: { name:'Clown',      sym:'🤡', special:true,  desc:'1 xana hər istiqamətdə. Üfüqi/şaquli 2 xana uzağa hücum edər (yerindən tərpənmir). Ən son itirdiyin daşın funksiyasını alar.' },
+  EX: { name:'Exchanger',  sym:'💱', special:true,  desc:'İstənilən dost daşla yer dəyişər. Yer dəyişdikdə özü piyadaya çevrilər.' },
+  AR: { name:'Archer',     sym:'🏹', special:true,  desc:'Adi halda 1 xana çapraz hərəkət. Çapraz 2-ci və 3-cü xanalara hücum edər (yerindən tərpənmir).' },
+  WR: { name:'Warrior',    sym:'⚔️', special:true,  desc:'1 xana hər istiqamətdə. İlk gediş zamanı 3 xanaya qədər hərəkət. Daş alarsa 1 əlavə hərəkət qazanar; həmin əlavə gedişdə yalnız 2-3 xana şaquli arxaya gedə bilər.' },
 };
-const ALL_SPECIAL = ['PH','NC','TP','AS','MM','RH','BS','CL','EX'];
+const ALL_SPECIAL = ['PH','NC','TP','AS','MM','RH','BS','CL','EX','AR','WR'];
 
 // ═══════════════════════════════════════════
 // GAME STATE
@@ -377,8 +379,11 @@ let board=[], selected=null, validMoves=[], turn='white';
 let lastMove=null, gameOver=false, ultraMode=false;
 let cemetery=[], mimicType=null, blackMimicType=null;
 let whiteInCheck=false, blackInCheck=false;
-// Clown absorbed type state
-let whiteClownType=null, blackClownType=null;
+// Clown: tracks last captured piece type (globally, per color)
+let whiteLastCaptured=null, blackLastCaptured=null;
+// Warrior: hasMoved flag stored on piece object; bonus move state
+let warriorBonusMove=false; // white warrior bonus move pending
+let warriorBonusMoveBlack=false;
 
 // ═══════════════════════════════════════════
 // SCREEN NAVIGATION
@@ -509,7 +514,8 @@ function makeWhiteBackRow(useSpecial) {
 function initBoard() {
   board = Array(8).fill(null).map(()=>Array(8).fill(null));
   cemetery=[]; mimicType=null; blackMimicType=null;
-  whiteClownType=null; blackClownType=null;
+  whiteLastCaptured=null; blackLastCaptured=null;
+  warriorBonusMove=false; warriorBonusMoveBlack=false;
   whiteInCheck=false; blackInCheck=false;
 
   const blackBack = makeBlackBackRow();
@@ -535,9 +541,9 @@ function getRawMoves(row, col, brd, mT, bmT) {
   const ally=piece.color;
   let eff=piece.type;
   if(piece.type==='MM') eff=(piece.color==='white'?mT:bmT)||'MM';
-  // Clown absorbs the type of a lost piece
+  // Clown uses last captured piece type for movement
   if(piece.type==='CL') {
-    const cT = piece.color==='white' ? whiteClownType : blackClownType;
+    const cT = piece.color==='white' ? whiteLastCaptured : blackLastCaptured;
     if(cT) eff=cT; else eff='CL';
   }
 
@@ -628,9 +634,9 @@ function getRawMoves(row, col, brd, mT, bmT) {
       break;
     case 'RH': knight(); [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>slide(dr,dc)); break;
     case 'CL': {
-      // Normal: 1 step any direction
+      // Normal move: 1 step any direction
       [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc));
-      // Attack only: horizontal/vertical 2 squares
+      // Ranged attack only (stays in place): horizontal/vertical 2 squares
       [[0,-2],[0,2],[-2,0],[2,0]].forEach(([dr,dc])=>{
         const r2=row+dr, c2=col+dc;
         if(r2<0||r2>7||c2<0||c2>7) return;
@@ -639,10 +645,61 @@ function getRawMoves(row, col, brd, mT, bmT) {
       break;
     }
     case 'EX': {
-      // Exchanger swaps with enemy king
+      // Exchanger swaps with any friendly piece (becomes pawn after swap)
       for(let r2=0;r2<8;r2++) for(let c2=0;c2<8;c2++) {
-        if(brd[r2][c2]?.type==='K'&&brd[r2][c2]?.color===enemy)
+        if(r2===row&&c2===col) continue;
+        if(brd[r2][c2]?.color===ally&&brd[r2][c2]?.type!=='K'&&brd[r2][c2]?.type!=='Q')
           moves.push({r:r2,c:c2,exchange:true});
+      }
+      break;
+    }
+    case 'AR': {
+      // Normal move: 1 step diagonal only (no capture on move)
+      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>{
+        const r2=row+dr, c2=col+dc;
+        if(r2<0||r2>7||c2<0||c2>7) return;
+        if(!brd[r2][c2]) moves.push({r:r2,c:c2}); // only to empty squares
+      });
+      // Ranged attack: diagonal 2nd and 3rd squares (stays in place)
+      [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr,dc])=>{
+        [2,3].forEach(dist=>{
+          const r2=row+dr*dist, c2=col+dc*dist;
+          if(r2<0||r2>7||c2<0||c2>7) return;
+          if(brd[r2][c2]?.color===enemy) moves.push({r:r2,c:c2,archerShot:true});
+        });
+      });
+      break;
+    }
+    case 'WR': {
+      // Warrior bonus move: only retreat 2-3 squares vertically backward
+      if(piece.type==='WR'&&((piece.color==='white'&&warriorBonusMove)||(piece.color==='black'&&warriorBonusMoveBlack))) {
+        const backDir = piece.color==='white' ? 1 : -1; // white retreats down (row+1), black retreats up (row-1)
+        [2,3].forEach(dist=>{
+          const r2=row+backDir*dist;
+          if(r2<0||r2>7) return;
+          if(!brd[r2]?.[col]) moves.push({r:r2,c:col,warriorBonus:true});
+          else if(brd[r2][col]?.color===enemy) moves.push({r:r2,c:col,warriorBonus:true});
+        });
+        break;
+      }
+      // Normal move: 1 step any direction
+      [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr,dc])=>add(row+dr,col+dc));
+      // First move: up to 3 squares in any direction (straight lines only)
+      if(!piece.hasMoved) {
+        [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{
+          for(let d=2;d<=3;d++){
+            const r2=row+dr*d, c2=col+dc*d;
+            if(r2<0||r2>7||c2<0||c2>7) break;
+            // Check path clear
+            let blocked=false;
+            for(let s=1;s<d;s++){
+              if(brd[row+dr*s]?.[col+dc*s]) { blocked=true; break; }
+            }
+            if(blocked) break;
+            if(brd[r2][c2]?.color===ally) break;
+            moves.push({r:r2,c:c2,warriorFirstMove:true});
+          }
+        });
       }
       break;
     }
@@ -664,7 +721,7 @@ function isInCheck(color,brd,mT,bmT) {
   for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
     if(brd[r][c]?.color!==attacker) continue;
     const mvs=getRawMoves(r,c,brd,mT,bmT);
-    if(mvs.some(m=>m.r===kPos[0]&&m.c===kPos[1]&&!m.necro&&!m.swap&&!m.exchange&&!m.clownAttack)) return true;
+    if(mvs.some(m=>m.r===kPos[0]&&m.c===kPos[1]&&!m.necro&&!m.swap&&!m.exchange&&!m.clownAttack&&!m.archerShot)) return true;
   }
   return false;
 }
@@ -672,13 +729,18 @@ function applyMoveToBoard(brd,fr,fc,tr,tc,meta) {
   const piece=brd[fr][fc]; if(!piece) return;
   if(meta?.swap) { const t=brd[tr][tc]; brd[tr][tc]=piece; brd[fr][fc]=t; return; }
   if(meta?.necro) { brd[tr][tc]={type:'P',color:piece.color}; return; }
+  // Exchanger: swap positions with ally, exchanger becomes pawn
   if(meta?.exchange) {
-    const myColor=piece.color, enemyColor=brd[tr][tc]?.color||'black';
-    brd[tr][tc]={type:'K', color:enemyColor};
-    brd[fr][fc]={type:'P', color:myColor};
+    const target=brd[tr][tc];
+    brd[tr][tc]={type:'P',color:piece.color};
+    brd[fr][fc]=target;
     return;
   }
+  // Clown ranged attack: remove target, clown stays
   if(meta?.clownAttack) { brd[tr][tc]=null; return; }
+  // Archer ranged shot: remove target, archer stays
+  if(meta?.archerShot) { brd[tr][tc]=null; return; }
+  // Warrior bonus retreat or first move: normal movement
   if(meta?.assassin&&brd[tr][tc]) { brd[tr][tc]=null; brd[fr][fc]=null; return; }
   brd[tr][tc]=piece; brd[fr][fc]=null;
 }
@@ -689,9 +751,15 @@ function moveLeavesInCheck(fr,fc,tr,tc,meta,color) {
 }
 function getLegalMoves(row,col) {
   const piece=board[row][col]; if(!piece) return [];
+  // Warrior in bonus move mode: only show bonus retreat moves
+  if(piece.type==='WR'&&((piece.color==='white'&&warriorBonusMove)||(piece.color==='black'&&warriorBonusMoveBlack))) {
+    return getRawMoves(row,col,board,mimicType,blackMimicType)
+      .filter(m=>m.warriorBonus&&!moveLeavesInCheck(row,col,m.r,m.c,m,piece.color));
+  }
   return getRawMoves(row,col,board,mimicType,blackMimicType)
     .filter(m=>{
-      if(m.exchange) return true; // exchange always legal (exchanger becomes king of enemy color)
+      if(m.exchange) return true; // exchange is always legal (repositioning ally)
+      if(m.clownAttack||m.archerShot) return true; // ranged attacks don't move the piece
       return !moveLeavesInCheck(row,col,m.r,m.c,m,piece.color);
     });
 }
@@ -707,52 +775,86 @@ function getAllLegalMovesFor(color) {
 // ═══════════════════════════════════════════
 function doMove(fr,fc,tr,tc,meta) {
   const piece=board[fr][fc], target=board[tr][tc];
+
   if(meta?.swap) { board[fr][fc]=target; board[tr][tc]=piece; lastMove=[[fr,fc],[tr,tc]]; return; }
   if(meta?.necro) {
     if(cemetery.length>0) { cemetery.pop(); board[tr][tc]={type:'P',color:piece.color}; }
     lastMove=[[fr,fc],[tr,tc]]; return;
   }
-  // Exchanger: swap with enemy king, exchanger becomes enemy king color, enemy king becomes own-color pawn
+
+  // Exchanger: swap with ally, exchanger becomes pawn at ally's old spot
   if(meta?.exchange) {
-    const myColor=piece.color;
-    const enemyColor=target.color;
-    // Exchanger takes king's spot and becomes the enemy's king
-    board[tr][tc]={type:'K', color:enemyColor};
-    // Enemy king becomes a pawn of the exchanger's color at exchanger's old spot
-    board[fr][fc]={type:'P', color:myColor};
+    const allyPiece=target;
+    board[fr][fc]=allyPiece;           // ally moves to exchanger's old position
+    board[tr][tc]={type:'P',color:piece.color}; // exchanger becomes pawn
     lastMove=[[fr,fc],[tr,tc]]; return;
   }
-  // Clown attack: jump 2 orthogonal squares to capture, clown stays put
+
+  // Clown ranged attack: remove enemy, clown stays, absorb last captured globally
   if(meta?.clownAttack) {
     if(target) {
-      // Clown absorbs the captured piece's type
-      if(piece.color==='white') whiteClownType=target.type;
-      else blackClownType=target.type;
+      if(piece.color==='white') whiteLastCaptured=target.type;
+      else blackLastCaptured=target.type;
+      if(target.color==='black'&&target.type==='P') cemetery.push('P');
       board[tr][tc]=null;
     }
     lastMove=[[fr,fc],[tr,tc]]; return;
   }
+
+  // Archer ranged shot: remove enemy, archer stays
+  if(meta?.archerShot) {
+    if(target) {
+      if(target.color==='black'&&target.type==='P') cemetery.push('P');
+      board[tr][tc]=null;
+    }
+    lastMove=[[fr,fc],[tr,tc]]; return;
+  }
+
+  // Warrior bonus move (retreat): move normally, clear bonus flag
+  if(meta?.warriorBonus) {
+    if(piece.color==='white') warriorBonusMove=false;
+    else warriorBonusMoveBlack=false;
+    if(target) {
+      if(target.color==='black'&&target.type==='P') cemetery.push('P');
+      trackCapture(piece,target);
+    }
+    board[tr][tc]=piece; board[fr][fc]=null;
+    lastMove=[[fr,fc],[tr,tc]]; return;
+  }
+
+  // Track captures for Clown's last-captured ability
   if(target) {
     if(target.color==='black'&&target.type==='P') cemetery.push('P');
-    if(piece.type==='MM') {
-      if(piece.color==='white') mimicType=target.type;
-      else blackMimicType=target.type;
-    }
-    // Clown absorbs type when it moves into a piece normally too
-    if(piece.type==='CL') {
-      if(piece.color==='white') whiteClownType=target.type;
-      else blackClownType=target.type;
+    trackCapture(piece,target);
+    // Warrior gains bonus move after capturing
+    if(piece.type==='WR') {
+      if(piece.color==='white') warriorBonusMove=true;
+      else warriorBonusMoveBlack=true;
     }
   }
+
   if(meta?.assassin&&target) { board[tr][tc]=null; board[fr][fc]=null; lastMove=[[fr,fc],[tr,tc]]; return; }
+
+  // Mark warrior as having moved (disables 3-step first move)
+  if(piece.type==='WR'&&!piece.hasMoved) piece.hasMoved=true;
+
   board[tr][tc]=piece; board[fr][fc]=null;
   lastMove=[[fr,fc],[tr,tc]];
+}
+
+function trackCapture(captor,captured) {
+  if(captor.color==='white') whiteLastCaptured=captured.type;
+  else blackLastCaptured=captured.type;
+  if(captor.type==='MM') {
+    if(captor.color==='white') mimicType=captured.type;
+    else blackMimicType=captured.type;
+  }
 }
 
 // ═══════════════════════════════════════════
 // AI — Minimax depth 2
 // ═══════════════════════════════════════════
-const PIECE_VALUE={P:1,N:3,B:3,R:5,Q:9,K:100,PH:4,NC:3,TP:3,AS:3,MM:3,RH:6,BS:2,CL:4,EX:7};
+const PIECE_VALUE={P:1,N:3,B:3,R:5,Q:9,K:100,PH:4,NC:3,TP:3,AS:3,MM:3,RH:6,BS:2,CL:4,EX:3,AR:4,WR:4};
 function boardScore() {
   let s=0;
   for(let r=0;r<8;r++) for(let c=0;c<8;c++) {
@@ -772,12 +874,14 @@ function minimax(depth,maximizing,alpha,beta) {
     for(const mv of allMoves) {
       const saved=board.map(r=>r.map(c=>c?{...c}:null));
       const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
-      const swCT=whiteClownType, sbCT=blackClownType;
+      const swLC=whiteLastCaptured,sbLC=blackLastCaptured;
+      const swB=warriorBonusMove,sbB=warriorBonusMoveBlack;
       doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
       const val=minimax(depth-1,false,alpha,beta);
       board.forEach((row,r)=>row.forEach((_,c)=>board[r][c]=saved[r][c]));
       mimicType=smT; blackMimicType=sbmT; cemetery=scem;
-      whiteClownType=swCT; blackClownType=sbCT;
+      whiteLastCaptured=swLC; blackLastCaptured=sbLC;
+      warriorBonusMove=swB; warriorBonusMoveBlack=sbB;
       best=Math.max(best,val); alpha=Math.max(alpha,val);
       if(beta<=alpha) break;
     }
@@ -787,12 +891,14 @@ function minimax(depth,maximizing,alpha,beta) {
     for(const mv of allMoves) {
       const saved=board.map(r=>r.map(c=>c?{...c}:null));
       const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
-      const swCT=whiteClownType, sbCT=blackClownType;
+      const swLC=whiteLastCaptured,sbLC=blackLastCaptured;
+      const swB=warriorBonusMove,sbB=warriorBonusMoveBlack;
       doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
       const val=minimax(depth-1,true,alpha,beta);
       board.forEach((row,r)=>row.forEach((_,c)=>board[r][c]=saved[r][c]));
       mimicType=smT; blackMimicType=sbmT; cemetery=scem;
-      whiteClownType=swCT; blackClownType=sbCT;
+      whiteLastCaptured=swLC; blackLastCaptured=sbLC;
+      warriorBonusMove=swB; warriorBonusMoveBlack=sbB;
       best=Math.min(best,val); beta=Math.min(beta,val);
       if(beta<=alpha) break;
     }
@@ -807,12 +913,14 @@ function aiMove() {
   for(const mv of allMoves) {
     const saved=board.map(r=>r.map(c=>c?{...c}:null));
     const smT=mimicType,sbmT=blackMimicType,scem=[...cemetery];
-    const swCT=whiteClownType, sbCT=blackClownType;
+    const swLC=whiteLastCaptured,sbLC=blackLastCaptured;
+    const swB=warriorBonusMove,sbB=warriorBonusMoveBlack;
     doMove(mv.fr,mv.fc,mv.r,mv.c,mv);
     const val=minimax(1,false,-Infinity,Infinity);
     board.forEach((row,r)=>row.forEach((_,c)=>board[r][c]=saved[r][c]));
     mimicType=smT; blackMimicType=sbmT; cemetery=scem;
-    whiteClownType=swCT; blackClownType=sbCT;
+    whiteLastCaptured=swLC; blackLastCaptured=sbLC;
+    warriorBonusMove=swB; warriorBonusMoveBlack=sbB;
     if(val>bestVal) { bestVal=val; bestMv=mv; }
   }
   doMove(bestMv.fr,bestMv.fc,bestMv.r,bestMv.c,bestMv);
@@ -868,6 +976,48 @@ function updateMimicUI() {
 function cellClick(r,c) {
   if(gameOver||turn!=='white') return;
   const piece=board[r][c];
+
+  // Warrior bonus move mode: player must use or skip it
+  if(warriorBonusMove) {
+    // Find the warrior
+    let wRow=-1,wCol=-1;
+    for(let i=0;i<8;i++) for(let j=0;j<8;j++)
+      if(board[i][j]?.type==='WR'&&board[i][j]?.color==='white') { wRow=i; wCol=j; }
+    if(wRow===-1) { warriorBonusMove=false; renderBoard(); return; }
+
+    if(selected&&selected[0]===wRow&&selected[1]===wCol) {
+      const mv=validMoves.find(m=>m.r===r&&m.c===c);
+      if(mv&&mv.warriorBonus) {
+        doMove(wRow,wCol,r,c,mv);
+        selected=null; validMoves=[];
+        checkEnd();
+        if(!gameOver) {
+          turn='black'; updateCheckState();
+          renderBoard(); updateStatus();
+          updateCemeteryUI(); updateMimicUI();
+          setTimeout(aiMove,600);
+        }
+        return;
+      }
+    }
+    // Select warrior for bonus move
+    if(r===wRow&&c===wCol) {
+      selected=[wRow,wCol];
+      validMoves=getLegalMoves(wRow,wCol);
+    } else {
+      // Skip bonus move
+      warriorBonusMove=false;
+      selected=null; validMoves=[];
+      turn='black'; updateCheckState();
+      renderBoard(); updateStatus();
+      updateCemeteryUI(); updateMimicUI();
+      setTimeout(aiMove,600);
+      return;
+    }
+    renderBoard();
+    return;
+  }
+
   if(selected) {
     const mv=validMoves.find(m=>m.r===r&&m.c===c);
     if(mv) {
@@ -876,6 +1026,15 @@ function cellClick(r,c) {
       selected=null; validMoves=[];
       checkEnd();
       if(!gameOver) {
+        // Check warrior bonus move before switching turns
+        if(warriorBonusMove) {
+          updateCheckState(); renderBoard(); updateStatus();
+          updateCemeteryUI(); updateMimicUI();
+          // Show hint to player
+          const bar=document.getElementById('status-bar');
+          bar.textContent='⚔️ Warrior əlavə hərəkət qazandı! (2-3 xana arxaya) — başqa xanaya basaraq ötürə bilərsən.';
+          return;
+        }
         turn='black'; updateCheckState();
         renderBoard(); updateStatus();
         updateCemeteryUI(); updateMimicUI();
@@ -912,7 +1071,7 @@ function renderBoard() {
     if(blackInCheck&&bKing&&r===bKing[0]&&c===bKing[1]) cell.classList.add('in-check');
     if(validMoves.length) {
       const mv=validMoves.find(m=>m.r===r&&m.c===c);
-      if(mv) cell.classList.add(mv.swap||mv.exchange?'swap-move':(board[r][c]?'capture-move':'valid-move'));
+      if(mv) cell.classList.add(mv.swap||mv.exchange?'swap-move':mv.warriorBonus?'valid-move':(board[r][c]?'capture-move':'valid-move'));
     }
     const piece=board[r][c];
     if(piece) {
@@ -991,7 +1150,8 @@ function resetGame(){
   stopTimer();
   selected=null; validMoves=[]; turn='white'; lastMove=null; gameOver=false;
   cemetery=[]; mimicType=null; blackMimicType=null;
-  whiteClownType=null; blackClownType=null;
+  whiteLastCaptured=null; blackLastCaptured=null;
+  warriorBonusMove=false; warriorBonusMoveBlack=false;
   whiteInCheck=false; blackInCheck=false;
   currentTimeLimit = DIFFICULTIES[difficulty].timeLimit;
   initBoard(); updateCheckState();
