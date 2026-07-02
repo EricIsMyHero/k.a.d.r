@@ -257,7 +257,7 @@
     </div>
 
 
-    <div id="video-lightbox" class="hidden fixed inset-0 z-50 bg-black/98 backdrop-blur-2xl flex items-center justify-center overflow-hidden transition-all duration-300 opacity-0">
+    <div id="video-lightbox" class="hidden fixed inset-0 z-50 bg-black/98 backdrop-blur-2xl flex items-center justify-center overflow-hidden">
         <div id="player-blur-bg" class="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-20 transition-all duration-500 scale-110"></div>
 
         <div class="relative w-full max-w-lg h-full max-h-screen flex flex-col justify-between items-center z-10 py-6 px-4">
@@ -1019,7 +1019,6 @@
             document.getElementById('player-watched-badge').classList.remove('hidden');
 
             lightbox.classList.remove('hidden');
-            lightbox.classList.remove('opacity-0');
 
             // Try to play immediately (keeps the click's user-gesture context alive,
             // which is what lets browsers autoplay WITH sound).
@@ -1076,12 +1075,9 @@
             videoElement.onerror = null;
             videoElement.onloadedmetadata = null;
             videoElement.pause();
-            lightbox.classList.add('opacity-0');
-            setTimeout(() => {
-                lightbox.classList.add('hidden');
-                activeVideo = null;
-                activeVideoIndex = -1;
-            }, 300);
+            lightbox.classList.add('hidden');
+            activeVideo = null;
+            activeVideoIndex = -1;
         }
 
         function togglePlay() {
