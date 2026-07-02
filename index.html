@@ -21,18 +21,9 @@
                         'scale-up': 'scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
                     },
                     keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(15px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        scaleUp: {
-                            '0%': { transform: 'scale(0.95)', opacity: '0' },
-                            '100%': { transform: 'scale(1)', opacity: '1' },
-                        }
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(15px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        scaleUp: { '0%': { transform: 'scale(0.95)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
                     }
                 }
             }
@@ -108,12 +99,12 @@
         </header>
 
         <div id="dev-suite" class="hidden fixed inset-x-0 top-[58px] max-w-lg mx-auto z-40 bg-[#161b22]/98 border-b border-[#21262d] p-5 animate-slide-up backdrop-blur-xl max-h-[82vh] overflow-y-auto no-scrollbar">
-            <h3 class="text-xs font-bold uppercase tracking-wider text-rose-500 mb-2">⚡ Cloudflare R2 + Supabase Hibrid CMS</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-rose-500 mb-2">⚡ Cloudflare R2 + Supabase Hybrid CMS</h3>
             <p class="text-[11px] text-zinc-400 mb-4 leading-relaxed">
-                Videoları pulsuz saxlamaq üçün <strong>Cloudflare R2</strong> (10GB Pulsuz, Sıfır Trafik haqqı) və verilənlər bazası üçün <strong>Supabase</strong> istifadə olunur. Bu, minlərlə video üçün ən optimal və sərfəli həlldir.
+                Videoları pulsuz və limitsiz saxlamaq üçün <strong>Cloudflare R2</strong>, verilənlər bazası üçün isə <strong>Supabase</strong> istifadə olunur. Bu optimal həll gələcəkdə minlərlə video üçün ən sərfəli və sürətli variantdır.
             </p>
 
-            <!-- SQL Cədvəl strukturu -->
+            <!-- SQL struktur bölməsi -->
             <div class="bg-[#0d1117] p-3 rounded-[18px] border border-[#21262d] mb-4">
                 <div class="flex justify-between items-center mb-1.5">
                     <h4 class="text-xs font-bold text-zinc-300">📋 Supabase SQL Cədvəl Kodu</h4>
@@ -140,14 +131,14 @@ create table public.videos (
                     <input type="text" id="r2-public-url" placeholder="R2 Public Bucket URL (məs: https://pub-xxx.r2.dev)" class="w-full bg-[#161b22] border border-[#21262d] rounded-lg p-2 font-mono text-zinc-300 focus:outline-none focus:border-rose-500">
                 </div>
                 <div class="flex justify-between items-center mt-3">
-                    <span id="supabase-status-badge" class="text-[9px] text-rose-400 font-bold">Qoşulmayıb (Demo Rejimi)</span>
+                    <span id="supabase-status-badge" class="text-[9px] text-rose-400 font-bold">Qoşulmayıb (R2 Aktivdir)</span>
                     <button onclick="saveSupabaseConfig()" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-500 text-[10px] text-white font-bold rounded-lg transition-all">
                         Qoş və Saxla
                     </button>
                 </div>
             </div>
 
-            <!-- Yeni Video Əlavəetmə Formu -->
+            <!-- Video Əlavəetmə Formu -->
             <div id="cms-video-form-container" class="bg-[#0d1117] p-3 rounded-[18px] border border-[#21262d] mb-4 opacity-50 pointer-events-none">
                 <h4 class="text-xs font-bold text-zinc-300 mb-2">📥 Yeni Cloudflare Videosu Əlavə Et</h4>
                 <div class="space-y-2 text-xs">
@@ -175,7 +166,7 @@ create table public.videos (
 
             <section id="tab-home" class="relative h-full">
 
-                <!-- Filtrləmə paneli -->
+                <!-- Filtrləmə düymələri və aktiv tag göstəricisi -->
                 <div class="absolute top-3 inset-x-3 z-20 space-y-2 pointer-events-none">
                     <div class="pointer-events-auto flex items-center justify-center gap-1.5 glass p-1.5 rounded-[18px] border border-[#21262d] w-fit mx-auto">
                         <button onclick="changeSort('foryou')" id="btn-sort-foryou" class="px-3 py-1.5 rounded-[18px] text-xs font-bold transition-all bg-[#0d1117] text-[#b01a2e] border border-[#b01a2e]/20 shadow-lg">
@@ -199,7 +190,7 @@ create table public.videos (
                     </div>
                 </div>
 
-                <!-- Yüklənmə skelet ekranı -->
+                <!-- Skeleton Loader -->
                 <div id="skeleton-loader" class="h-full flex items-center justify-center px-6">
                     <div class="w-full max-w-xs bg-[#161b22] border border-[#21262d] rounded-[18px] p-4 space-y-4 animate-pulse">
                         <div class="aspect-[9/16] bg-[#30363d] rounded-[18px]"></div>
@@ -207,7 +198,7 @@ create table public.videos (
                     </div>
                 </div>
 
-                <!-- Əsas video feed sahəsi -->
+                <!-- Əsas Video Grid -->
                 <div id="video-grid" class="hidden h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar"></div>
 
                 <!-- Boş ekran vəziyyəti -->
@@ -222,7 +213,6 @@ create table public.videos (
                 </div>
             </section>
 
-            <!-- Axtarış ekranı -->
             <section id="tab-search" class="hidden p-4 pb-28 space-y-5 animate-slide-up overflow-y-auto h-full">
                 <div class="space-y-3">
                     <h2 class="text-lg font-black tracking-tight text-zinc-100 flex items-center gap-2">
@@ -252,13 +242,12 @@ create table public.videos (
                 </div>
             </section>
 
-            <!-- Kateqoriyalar ekranı -->
             <section id="tab-tags" class="hidden p-4 pb-28 space-y-5 animate-slide-up overflow-y-auto h-full">
                 <div class="space-y-1">
                     <h2 class="text-lg font-black tracking-tight text-zinc-100 flex items-center gap-2">
                         <span>📂</span> Bütün Kateqoriyalar
                     </h2>
-                    <p class="text-xs text-zinc-400">Müxtəlif mövzularda hazırlanmış sehirli dünyanı kəşf edin.</p>
+                    <p class="text-xs text-zinc-400">Müxtəlif mövzularda hazırlanmış sehrli dünyanı kəşf edin.</p>
                 </div>
 
                 <div id="tags-category-grid" class="grid grid-cols-2 gap-3.5"></div>
@@ -325,7 +314,7 @@ create table public.videos (
                 </div>
             </div>
 
-            <!-- Video çarçivə sahəsi -->
+            <!-- Video çərçivə sahəsi və donmaya qarşı tənzimlənən pleyer -->
             <div class="w-full flex-1 flex items-center justify-center relative my-4">
                 <div class="relative max-w-full max-h-[70vh] bg-black/40 rounded-[18px] overflow-hidden border border-white/5 flex items-center justify-center group" id="video-wrapper" style="aspect-ratio: 9 / 16;">
                     
@@ -357,7 +346,7 @@ create table public.videos (
                 </div>
             </div>
 
-            <!-- Alt tənzimləmələr paneli -->
+            <!-- Alt tənzimləmələr paneli və progress bar -->
             <div class="w-full glass p-4 rounded-[18px] border border-white/5 space-y-3.5 z-20">
                 <div class="space-y-1">
                     <div class="relative w-full h-1 bg-zinc-800 rounded-full overflow-hidden cursor-pointer" id="progress-container" onclick="seekVideo(event)">
@@ -407,27 +396,105 @@ create table public.videos (
     </div>
 
     <script>
+        // Sizin Cloudflare R2 daxilindəki real qovluq və video siyahınızın tam xəritəsi
         window.demoVideos = [
             {
+                "id": "vid-from-1",
+                "title": "From Edit (Couple) • Love Is Blind",
+                "file": "videos-of-my-favorites/from/couple-edit-1.mp4",
+                "tags": ["couple-edit", "from"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-obsession-crush",
+                "title": "Obsession Edit • Crush List Special",
+                "file": "videos-of-my-favorites/obsession/crush-list-1.mp4",
+                "tags": ["crush-list", "obsession"],
+                "uploadDate": "2026-07-02"
+            },
+            {
                 "id": "vid-obsession-1",
-                "title": "Obsession Edit (Normal)",
+                "title": "Obsession Edit (Normal) #1",
                 "file": "videos-of-my-favorites/obsession/normal-edit-1.mp4",
-                "tags": ["film-edit", "obsession", "normal-edit"],
+                "tags": ["normal-edit", "obsession"],
                 "uploadDate": "2026-07-02"
             },
             {
                 "id": "vid-obsession-2",
-                "title": "Obsession Edit (Couple)",
-                "file": "videos-of-my-favorites/obsession/couple-edit-1.mp4",
-                "tags": ["couple-edit", "obsession"],
+                "title": "Obsession Edit (Normal) #2",
+                "file": "videos-of-my-favorites/obsession/normal-edit-2.mp4",
+                "tags": ["normal-edit", "obsession"],
                 "uploadDate": "2026-07-02"
             },
             {
-                "id": "vid-tokyo-rain",
-                "title": "Anime Evening Vibe - Tokyo Rain",
-                "file": "https://assets.mixkit.co/videos/preview/mixkit-cyberpunk-tokyo-street-with-neon-lights-and-rain-34311-large.mp4",
-                "tags": ["normal-edit", "crush-list"],
-                "uploadDate": "2026-06-25"
+                "id": "vid-obsession-3",
+                "title": "Obsession Edit (Normal) #3",
+                "file": "videos-of-my-favorites/obsession/normal-edit-3.mp4",
+                "tags": ["normal-edit", "obsession"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-obsession-4",
+                "title": "Obsession Edit (Normal) #4",
+                "file": "videos-of-my-favorites/obsession/normal-edit-4.mp4",
+                "tags": ["normal-edit", "obsession"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-rick-1",
+                "title": "Rick and Morty Space Vibe",
+                "file": "videos-of-my-favorites/rick-and-morty/normal-edit-1.mp4",
+                "tags": ["normal-edit", "rick-and-morty"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-circus-couple-1",
+                "title": "The Amazing Digital Circus (Couple) #1",
+                "file": "videos-of-my-favorites/the-amazing-digital-circus/couple-edit-1.mp4",
+                "tags": ["couple-edit", "the-amazing-digital-circus"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-circus-couple-2",
+                "title": "The Amazing Digital Circus (Couple) #2",
+                "file": "videos-of-my-favorites/the-amazing-digital-circus/couple-edit-2.mp4",
+                "tags": ["couple-edit", "the-amazing-digital-circus"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-circus-normal-1",
+                "title": "The Amazing Digital Circus (Normal) #1",
+                "file": "videos-of-my-favorites/the-amazing-digital-circus/normal-edit-1.mp4",
+                "tags": ["normal-edit", "the-amazing-digital-circus"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-circus-normal-2",
+                "title": "The Amazing Digital Circus (Normal) #2",
+                "file": "videos-of-my-favorites/the-amazing-digital-circus/normal-edit-2.mp4",
+                "tags": ["normal-edit", "the-amazing-digital-circus"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-circus-normal-3",
+                "title": "The Amazing Digital Circus (Normal) #3",
+                "file": "videos-of-my-favorites/the-amazing-digital-circus/normal-edit-3.mp4",
+                "tags": ["normal-edit", "the-amazing-digital-circus"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-toystory-couple-1",
+                "title": "Toy Story (Couple Edit)",
+                "file": "videos-of-my-favorites/toy-story/couple-edit-1.mp4",
+                "tags": ["couple-edit", "toy-story"],
+                "uploadDate": "2026-07-02"
+            },
+            {
+                "id": "vid-toystory-normal-1",
+                "title": "Toy Story (Normal Edit)",
+                "file": "videos-of-my-favorites/toy-story/normal-edit-1.mp4",
+                "tags": ["normal-edit", "toy-story"],
+                "uploadDate": "2026-07-02"
             }
         ];
 
@@ -449,13 +516,16 @@ create table public.videos (
         let supabaseClient = null;
         let isSupabaseInitialized = false;
 
-        // Xüsusi kateqoriya və tag üslubları
         const tagStyles = {
             "film-edit": { bg: "bg-[#161b22]", border: "border-[#b01a2e]/30", text: "text-[#b01a2e]", label: "🎬 Film Edit", icon: "🎬", glow: "shadow-[#b01a2e]/5" },
             "couple-edit": { bg: "bg-[#161b22]", border: "border-[#1a64a0]/30", text: "text-[#1a64a0]", label: "❤️ Couple Edit", icon: "❤️", glow: "shadow-[#1a64a0]/5" },
             "crush-list": { bg: "bg-[#161b22]", border: "border-[#257a3e]/30", text: "text-[#257a3e]", label: "⭐ Crush List", icon: "⭐", glow: "shadow-[#257a3e]/5" },
             "normal-edit": { bg: "bg-[#161b22]", border: "border-[#c69200]/30", text: "text-[#c69200]", label: "🎨 Normal Edit", icon: "🎨", glow: "shadow-[#c69200]/5" },
-            "obsession": { bg: "bg-[#161b22]", border: "border-purple-500/30", text: "text-purple-400", label: "🌀 Obsession", icon: "🌀", glow: "shadow-purple-500/5" }
+            "obsession": { bg: "bg-[#161b22]", border: "border-purple-500/30", text: "text-purple-400", label: "🌀 Obsession", icon: "🌀", glow: "shadow-purple-500/5" },
+            "toy-story": { bg: "bg-[#161b22]", border: "border-amber-500/30", text: "text-amber-400", label: "🤠 Toy Story", icon: "🤠", glow: "shadow-amber-500/5" },
+            "the-amazing-digital-circus": { bg: "bg-[#161b22]", border: "border-cyan-500/30", text: "text-cyan-400", label: "🎪 Digital Circus", icon: "🎪", glow: "shadow-cyan-500/5" },
+            "rick-and-morty": { bg: "bg-[#161b22]", border: "border-lime-500/30", text: "text-lime-400", label: "🧪 Rick & Morty", icon: "🧪", glow: "shadow-lime-500/5" },
+            "from": { bg: "bg-[#161b22]", border: "border-rose-500/30", text: "text-rose-400", label: "🚪 From", icon: "🚪", glow: "shadow-rose-500/5" }
         };
 
         const autoPalette = ['#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#14b8a6'];
@@ -494,7 +564,6 @@ create table public.videos (
             if (file.startsWith('http://') || file.startsWith('https://')) {
                 return file;
             }
-            // Əgər istifadəçi lokal olaraq R2 bucket linkini konfiqurasiya etməyibsə, sizin R2 bucketiniz standart seçilir
             const savedR2Url = localStorage.getItem('kadr_r2_url') || 'https://pub-27954f88972e4cb884b6ec66cbf3ad0a.r2.dev';
             const base = savedR2Url.endsWith('/') ? savedR2Url : `${savedR2Url}/`;
             return `${base}${file}`;
@@ -508,7 +577,6 @@ create table public.videos (
 
             const savedUrl = localStorage.getItem('kadr_supabase_url');
             const savedKey = localStorage.getItem('kadr_supabase_key');
-            // Əgər quraşdırılmış R2 URL yoxdursa, təqdim etdiyiniz default link daxil edilir
             const savedR2Url = localStorage.getItem('kadr_r2_url') || 'https://pub-27954f88972e4cb884b6ec66cbf3ad0a.r2.dev';
 
             document.getElementById('r2-public-url').value = savedR2Url;
@@ -600,7 +668,7 @@ create table public.videos (
                 localStorage.removeItem('kadr_supabase_url');
                 localStorage.removeItem('kadr_supabase_key');
                 localStorage.removeItem('kadr_r2_url');
-                window.showToast("Ayarlar silindi, Demo rejim aktivləşdirildi.", "error");
+                window.showToast("Ayarlar silindi, R2 rejim aktivləşdirildi.", "error");
                 setTimeout(() => window.location.reload(), 1000);
                 return;
             }
@@ -1227,7 +1295,6 @@ create table public.videos (
             window.isMuted = false;
             updateMuteUI();
 
-            // Sizin Cloudflare R2 bazanızdan gələn video birbaşa oxunur
             videoElement.src = window.getVideoUrl(window.activeVideo.file);
             videoElement.preload = 'auto';
             videoElement.load();
