@@ -38,30 +38,16 @@
         }
     </script>
     <style>
-        /* Base page styling with GitHub Dark color scheme (#0d1117) */
         html {
             scroll-behavior: smooth;
             -webkit-tap-highlight-color: transparent;
             background-color: #0d1117;
         }
-        
-        /* Custom scrollbar for desktop preview */
-        ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0d1117;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #21262d;
-            border-radius: 99px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #30363d;
-        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #0d1117; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #30363d; }
 
-        /* Glassmorphism using dark theme elements */
         .glass {
             background: rgba(22, 27, 34, 0.8);
             backdrop-filter: blur(20px);
@@ -69,7 +55,6 @@
             border: 1px solid rgba(240, 246, 252, 0.05);
         }
 
-        /* Logo customization with custom dark color scheme */
         .logo-header {
             font-family: "Arial Nova", Arial, sans-serif;
             font-weight: 800;
@@ -78,15 +63,9 @@
             display: inline-flex;
             align-items: center;
         }
-        .logo-header span {
-            transition: transform .25s ease;
-            display: inline-block;
-        }
-        .logo-header:hover span {
-            transform: translateY(-2px);
-        }
-        
-        /* Darker, rich premium color palette mapped precisely to user specs */
+        .logo-header span { transition: transform .25s ease; display: inline-block; }
+        .logo-header:hover span { transform: translateY(-2px); }
+
         .k-color { color: #b01a2e; text-shadow: 0 0 15px rgba(176, 26, 46, 0.25); }
         .a-color { color: #1a64a0; text-shadow: 0 0 15px rgba(26, 100, 160, 0.25); }
         .d-color { color: #257a3e; text-shadow: 0 0 15px rgba(37, 122, 62, 0.25); }
@@ -96,15 +75,11 @@
 </head>
 <body class="bg-[#0d1117] text-zinc-100 min-h-screen font-sans flex flex-col justify-between overflow-x-hidden selection:bg-rose-500/20 selection:text-rose-200">
 
-    <!-- Floating system notifications -->
     <div id="toast-container" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
 
-    <!-- Main Mobile Frame Container -->
     <div class="w-full max-w-lg mx-auto min-h-screen flex flex-col relative pb-28 shadow-[0_0_80px_rgba(0,0,0,0.6)] border-x border-[#21262d] bg-[#0d1117]">
-        
-        <!-- HEADER: Logo area with configuration tools -->
+
         <header class="sticky top-0 z-40 glass px-5 py-3.5 flex items-center justify-between transition-all duration-300">
-            <!-- Modern K.A.D.R Minimal Logo (Darker colors and shrunk slightly to fit layout) -->
             <div class="logo-header text-xl cursor-pointer" onclick="switchTab('home'); clearTagFilter();">
                 <span class="k-color">K</span><span class="dot-color">.</span>
                 <span class="a-color">A</span><span class="dot-color">.</span>
@@ -112,7 +87,6 @@
                 <span class="r-color">R</span>
             </div>
 
-            <!-- Configuration controller and Badge Counter -->
             <div class="flex items-center gap-2">
                 <button onclick="toggleDevSuite()" class="glass px-2.5 py-1.5 rounded-[18px] text-[11px] text-zinc-400 hover:text-rose-400 flex items-center gap-1 transition-all">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -128,27 +102,24 @@
             </div>
         </header>
 
-        <!-- Dev Suite for real GitHub Pages videos.json configurations -->
         <div id="dev-suite" class="hidden fixed inset-x-0 top-[58px] max-w-lg mx-auto z-40 bg-[#161b22]/98 border-b border-[#21262d] p-5 animate-slide-up backdrop-blur-xl">
             <h3 class="text-xs font-bold uppercase tracking-wider text-rose-500 mb-2">GitHub Pages Qovluq Quruluşu & JSON</h3>
             <p class="text-xs text-zinc-400 mb-4 leading-relaxed">
-                Bu tətbiq GitHub Pages üçün tam uyğundur. Aşağıdakı JSON məzmununu kopyalayıb repozitoriyanızda <code class="text-rose-400">data/videos.json</code> adı ilə saxlayın. Videolarınızı isə <code class="text-rose-400">videos/</code> qovluğuna yükləyin.
+                Bu tətbiq GitHub Pages üçün tam uyğundur. Aşağıdakı JSON məzmununu kopyalayıb repozitoriyanızda <code class="text-rose-400">data/videos.json</code> adı ilə saxlayın. Videolarınızı isə <code class="text-rose-400">videos/</code> qovluğuna yükləyin. Tags sahəsinə istənilən söz yaza bilərsiniz — yeni tag avtomatik sistemə əlavə olunur.
             </p>
 
-            <!-- Mode Switcher -->
             <div class="mb-4 bg-[#0d1117] p-2.5 rounded-[18px] flex items-center justify-between border border-[#21262d]">
                 <span class="text-xs font-medium text-zinc-300">Video Mənbə Rejimi:</span>
                 <div class="flex gap-1.5">
-                    <button onclick="setSourceMode('demo')" id="btn-mode-demo" class="px-2.5 py-1 rounded-[18px] text-[11px] font-bold transition-all bg-[#1a64a0] text-white">
+                    <button onclick="setSourceMode('demo')" id="btn-mode-demo" class="px-2.5 py-1 rounded-[18px] text-[11px] font-bold transition-all text-zinc-400 hover:text-white">
                         Demo (Online)
                     </button>
-                    <button onclick="setSourceMode('local')" id="btn-mode-local" class="px-2.5 py-1 rounded-[18px] text-[11px] font-bold transition-all text-zinc-400 hover:text-white">
+                    <button onclick="setSourceMode('local')" id="btn-mode-local" class="px-2.5 py-1 rounded-[18px] text-[11px] font-bold transition-all bg-[#1a64a0] text-white">
                         Local (GitHub `/videos`)
                     </button>
                 </div>
             </div>
 
-            <!-- JSON output structures -->
             <div class="relative bg-black/40 p-3 rounded-[18px] border border-[#21262d] text-[10px] font-mono text-zinc-300 overflow-x-auto max-h-40 mb-3">
                 <pre id="json-preview"></pre>
                 <button onclick="copyJsonToClipboard()" class="absolute right-2 top-2 px-2.5 py-1 bg-[#21262d] hover:bg-[#30363d] text-[9px] text-zinc-200 rounded-[18px] transition-colors">
@@ -160,10 +131,8 @@
             </button>
         </div>
 
-        <!-- Main Body Frame layout -->
         <main class="flex-1 p-4 relative z-10">
 
-            <!-- TAB: HOME (LATEST VIDEOS & FEEDS) -->
             <section id="tab-home" class="space-y-5">
                 <div class="flex items-center justify-between bg-[#161b22] p-3 rounded-[18px] border border-[#21262d]">
                     <div class="flex gap-1.5">
@@ -179,7 +148,6 @@
                     </div>
                 </div>
 
-                <!-- Active Filter Indicator tag layout -->
                 <div id="active-tag-indicator" class="hidden bg-[#161b22] border border-[#21262d] p-3.5 rounded-[18px] flex items-center justify-between animate-fade-in">
                     <span class="text-xs font-medium text-zinc-300">
                         Süzgəc: <span id="active-tag-name" class="font-bold uppercase tracking-wider text-rose-400">#tag</span>
@@ -189,7 +157,6 @@
                     </button>
                 </div>
 
-                <!-- Skeleton pre-loader layout -->
                 <div id="skeleton-loader" class="space-y-5">
                     <div class="bg-[#161b22] border border-[#21262d] rounded-[18px] p-4 space-y-4 animate-pulse">
                         <div class="aspect-video bg-[#30363d] rounded-[18px]"></div>
@@ -201,10 +168,8 @@
                     </div>
                 </div>
 
-                <!-- Main dynamic video content area -->
                 <div id="video-grid" class="hidden space-y-5"></div>
 
-                <!-- Empty video grid fallback state -->
                 <div id="empty-state" class="hidden py-16 text-center space-y-4">
                     <div class="w-16 h-16 bg-[#161b22] rounded-full flex items-center justify-center mx-auto border border-[#21262d] text-zinc-500 text-2xl">
                         🎬
@@ -216,13 +181,11 @@
                 </div>
             </section>
 
-            <!-- TAB: SEARCH -->
             <section id="tab-search" class="hidden space-y-5 animate-slide-up">
                 <div class="space-y-3">
                     <h2 class="text-lg font-black tracking-tight text-zinc-100 flex items-center gap-2">
                         <span>🔍</span> Video Axtarın
                     </h2>
-                    <!-- Elegant animated search input field -->
                     <div class="relative flex items-center">
                         <span class="absolute left-4 text-zinc-400">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -236,20 +199,17 @@
                     </div>
                 </div>
 
-                <!-- Search suggestion fast filters tags -->
                 <div class="space-y-3">
                     <span class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Sürətli axtarış tagləri</span>
                     <div class="flex flex-wrap gap-2" id="search-tag-suggestions"></div>
                 </div>
 
-                <!-- Search Query listing results -->
                 <div class="space-y-4 pt-2">
                     <span class="text-xs font-bold text-zinc-400 uppercase tracking-widest" id="search-results-heading">Tapılan Videolar</span>
                     <div id="search-results-grid" class="space-y-3.5"></div>
                 </div>
             </section>
 
-            <!-- TAB: TAGS / CATEGORIES -->
             <section id="tab-tags" class="hidden space-y-5 animate-slide-up">
                 <div class="space-y-1">
                     <h2 class="text-lg font-black tracking-tight text-zinc-100 flex items-center gap-2">
@@ -258,15 +218,12 @@
                     <p class="text-xs text-zinc-400">Müxtəlif mövzularda hazırlanmış sehirli dünyanı kəşf edin.</p>
                 </div>
 
-                <!-- Beautiful grid listing all matching tag sections -->
                 <div id="tags-category-grid" class="grid grid-cols-2 gap-3.5"></div>
             </section>
 
         </main>
 
-        <!-- FLOATING NAVIGATION: iPhone Styled Menu with Glassmorphism and Auto-hide on Scroll -->
         <nav id="bottom-nav" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-sm rounded-[18px] glass shadow-[0_12px_40px_rgba(0,0,0,0.5)] px-4 py-3 flex items-center justify-around transition-all duration-300">
-            <!-- Home Item -->
             <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 group text-[#b01a2e] transition-colors">
                 <div class="w-10 h-10 rounded-[18px] flex items-center justify-center transition-all bg-[#b01a2e]/10 scale-105" id="nav-icon-home-bg">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 20 20">
@@ -276,7 +233,6 @@
                 <span class="text-[10px] font-bold tracking-wide uppercase">Home</span>
             </button>
 
-            <!-- Search Item -->
             <button onclick="switchTab('search')" id="nav-search" class="flex flex-col items-center gap-1 group text-zinc-500 hover:text-zinc-300 transition-colors">
                 <div class="w-10 h-10 rounded-[18px] flex items-center justify-center transition-all" id="nav-icon-search-bg">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -286,7 +242,6 @@
                 <span class="text-[10px] font-bold tracking-wide uppercase">Search</span>
             </button>
 
-            <!-- Tags/Folder Item -->
             <button onclick="switchTab('tags')" id="nav-tags" class="flex flex-col items-center gap-1 group text-zinc-500 hover:text-zinc-300 transition-colors">
                 <div class="w-10 h-10 rounded-[18px] flex items-center justify-center transition-all" id="nav-icon-tags-bg">
                     <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="currentColor" viewBox="0 0 20 20">
@@ -299,15 +254,11 @@
 
     </div>
 
-    <!-- Full-screen Lightbox Video Player Chassis -->
     <div id="video-lightbox" class="hidden fixed inset-0 z-50 bg-black/98 backdrop-blur-2xl flex items-center justify-center overflow-hidden transition-all duration-300 opacity-0">
-        <!-- Blur Background Backing -->
         <div id="player-blur-bg" class="absolute inset-0 bg-cover bg-center filter blur-3xl opacity-20 transition-all duration-500 scale-110"></div>
-        
-        <!-- Inside Frame Layout Area -->
+
         <div class="relative w-full max-w-lg h-full max-h-screen flex flex-col justify-between items-center z-10 py-6 px-4">
-            
-            <!-- Top Controls bar -->
+
             <div class="w-full flex items-center justify-between glass px-4 py-3 rounded-[18px] border border-white/5 z-20">
                 <button onclick="closeLightbox()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-white">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -318,7 +269,6 @@
                     <h4 id="player-title" class="text-xs font-black text-white truncate">Video Title</h4>
                     <p id="player-author" class="text-[9px] text-zinc-400 font-bold uppercase tracking-wider mt-0.5">K.A.D.R Premium</p>
                 </div>
-                <!-- Watched Indicator overlay -->
                 <div class="flex items-center gap-1.5">
                     <span id="player-watched-badge" class="px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/30 text-[9px] font-bold rounded-md hidden">
                         ✓ İZLƏNDİ
@@ -331,14 +281,12 @@
                 </div>
             </div>
 
-            <!-- Video core item -->
             <div class="w-full flex-1 flex items-center justify-center relative my-4">
                 <div class="relative max-w-full max-h-[70vh] aspect-[9/16] bg-black/40 rounded-[18px] overflow-hidden border border-white/5 flex items-center justify-center group" id="video-wrapper">
                     <video id="main-video-player" playsinline class="w-full h-full object-contain cursor-pointer">
                         <source id="video-source" src="" type="video/mp4">
                     </video>
 
-                    <!-- Giant Play Switch Overlay -->
                     <div id="play-pause-overlay" onclick="togglePlay()" class="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                         <div class="w-14 h-14 rounded-full glass flex items-center justify-center text-white shadow-xl">
                             <svg id="giant-play-svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -347,7 +295,6 @@
                         </div>
                     </div>
 
-                    <!-- Slide left/right navigations buttons -->
                     <div class="absolute left-0 inset-y-0 w-1/5 flex items-center justify-start pl-2 pointer-events-none">
                         <button onclick="prevVideo(event)" class="pointer-events-auto w-8 h-8 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity text-sm font-bold">
                             ‹
@@ -361,9 +308,7 @@
                 </div>
             </div>
 
-            <!-- Custom Controls bar inside Player -->
             <div class="w-full glass p-4 rounded-[18px] border border-white/5 space-y-3.5 z-20">
-                <!-- Timeline Seek line slider -->
                 <div class="space-y-1">
                     <div class="relative w-full h-1 bg-zinc-800 rounded-full overflow-hidden cursor-pointer" id="progress-container" onclick="seekVideo(event)">
                         <div id="progress-bar" class="absolute left-0 top-0 h-full bg-gradient-to-r from-rose-500 to-purple-500 w-0"></div>
@@ -374,7 +319,6 @@
                     </div>
                 </div>
 
-                <!-- Controls and direct share capabilities -->
                 <div class="flex items-center justify-between gap-4">
                     <div class="flex items-center gap-2">
                         <button onclick="togglePlay()" class="p-2 bg-white text-zinc-950 hover:bg-zinc-200 transition-colors rounded-full" title="Oynat/Durdur">
@@ -403,7 +347,6 @@
                 <div id="player-tags" class="flex flex-wrap gap-1.5 pt-1"></div>
             </div>
 
-            <!-- Desktop shortcut helper -->
             <div class="text-center text-[9px] text-zinc-500 font-bold flex items-center gap-3">
                 <span>← Sol ox (Əvvəlki)</span>
                 <span>• Space (Dayandır) •</span>
@@ -457,7 +400,7 @@
             }
         ];
 
-        // Fallback structures representing GitHub Pages setup
+        // GitHub Pages local /videos structure — default source
         const localVideos = [
             {
                 "id": "local-1",
@@ -482,18 +425,50 @@
                 "thumbnail": "thumbnails/edit1.jpg",
                 "tags": ["film-edit", "normal-edit"],
                 "uploadDate": "2026-06-15"
+            },
+            {
+                "id": "local-4",
+                "title": "Arcane Season Edit",
+                "file": "videos/arcane.mp4",
+                "thumbnail": "thumbnails/edit1.jpg",
+                "tags": ["film-edit", "arcane"],
+                "uploadDate": "2026-06-27"
+            },
+            {
+                "id": "local-5",
+                "title": "Obsession Moment",
+                "file": "videos/obsession.mp4",
+                "thumbnail": "thumbnails/edit2.jpg",
+                "tags": ["film-edit", "obsession"],
+                "uploadDate": "2026-06-20"
+            },
+            {
+                "id": "local-6",
+                "title": "Dispatch Cut",
+                "file": "videos/dispatch.mp4",
+                "thumbnail": "thumbnails/edit1.jpg",
+                "tags": ["film-edit", "dispatch"],
+                "uploadDate": "2026-06-18"
+            },
+            {
+                "id": "local-7",
+                "title": "From Series Edit",
+                "file": "videos/from.mp4",
+                "thumbnail": "thumbnails/edit2.jpg",
+                "tags": ["film-edit", "from"],
+                "uploadDate": "2026-06-10"
             }
         ];
 
-        // Persistent application states
-        let currentSourceMode = localStorage.getItem('kadr_source_mode') || 'demo';
+        // Persistent application states — default source: local GitHub /videos
+        let currentSourceMode = localStorage.getItem('kadr_source_mode') || 'local';
         let videosDatabase = currentSourceMode === 'demo' ? [...demoVideos] : [...localVideos];
-        
+
         let currentTab = 'home';
         let searchQuery = '';
         let currentTagFilter = null;
         let sortBy = 'date';
-        
+
         let favorites = JSON.parse(localStorage.getItem('kadr_favorites')) || [];
         let watched = JSON.parse(localStorage.getItem('kadr_watched')) || [];
 
@@ -501,19 +476,60 @@
         let activeVideoIndex = -1;
         let isMuted = false;
 
-        // Custom theme map syncing K.A.D.R colors cleanly
+        // Ana kateqoriyalar (əl ilə təyin olunmuş stillər)
         const tagStyles = {
-            "film-edit": { bg: "bg-[#b01a2e]/10", border: "border-[#b01a2e]/20", text: "text-[#b01a2e]", label: "🎬 Film Edit", glow: "shadow-[#b01a2e]/5" },
-            "couple-edit": { bg: "bg-[#1a64a0]/10", border: "border-[#1a64a0]/20", text: "text-[#1a64a0]", label: "❤️ Couple Edit", glow: "shadow-[#1a64a0]/5" },
-            "crush-list": { bg: "bg-[#257a3e]/10", border: "border-[#257a3e]/20", text: "text-[#257a3e]", label: "⭐ Crush List", glow: "shadow-[#257a3e]/5" },
-            "normal-edit": { bg: "bg-[#c69200]/10", border: "border-[#c69200]/20", text: "text-[#c69200]", label: "🎨 Normal Edit", glow: "shadow-[#c69200]/5" }
+            "film-edit": { bg: "bg-[#b01a2e]/10", border: "border-[#b01a2e]/20", text: "text-[#b01a2e]", label: "🎬 Film Edit", icon: "🎬", glow: "shadow-[#b01a2e]/5" },
+            "couple-edit": { bg: "bg-[#1a64a0]/10", border: "border-[#1a64a0]/20", text: "text-[#1a64a0]", label: "❤️ Couple Edit", icon: "❤️", glow: "shadow-[#1a64a0]/5" },
+            "crush-list": { bg: "bg-[#257a3e]/10", border: "border-[#257a3e]/20", text: "text-[#257a3e]", label: "⭐ Crush List", icon: "⭐", glow: "shadow-[#257a3e]/5" },
+            "normal-edit": { bg: "bg-[#c69200]/10", border: "border-[#c69200]/20", text: "text-[#c69200]", label: "🎨 Normal Edit", icon: "🎨", glow: "shadow-[#c69200]/5" }
         };
 
-        const defaultTagStyle = { bg: "bg-zinc-500/10", border: "border-zinc-500/20", text: "text-zinc-400", label: "✨ Edit", glow: "shadow-zinc-500/5" };
+        // Avtomatik sub-tag sistemi: videos.json-da yazılan istənilən yeni tag
+        // (məs: obsession, arcane, dispatch, from) əl dəymədən avtomatik rəng/ikon alır.
+        const autoPalette = ['#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#06b6d4', '#f43f5e'];
+        const autoIcons   = ['🎭', '✨', '🌙', '🔥', '💫', '⚡', '🎯', '🌀'];
+
+        function hashString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function formatTagName(tag) {
+            return tag.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        function getTagStyle(tag) {
+            if (tagStyles[tag]) return tagStyles[tag];
+            const idx = hashString(tag) % autoPalette.length;
+            const color = autoPalette[idx];
+            const icon = autoIcons[idx];
+            return {
+                bg: `bg-[${color}]/10`,
+                border: `border-[${color}]/20`,
+                text: `text-[${color}]`,
+                label: `${icon} ${formatTagName(tag)}`,
+                icon: icon,
+                glow: `shadow-[${color}]/5`
+            };
+        }
 
         window.onload = function() {
             updateJsonPreview();
-            
+
+            const demoBtn = document.getElementById('btn-mode-demo');
+            const localBtn = document.getElementById('btn-mode-local');
+            if (currentSourceMode === 'demo') {
+                demoBtn.className = "px-2.5 py-1 rounded-[18px] text-[11px] font-bold transition-all bg-[#1a64a0] text-white";
+                localBtn.className = "px-2.5 py-1 rounded-[18px] text-[11px] font-bold transition-all text-zinc-400 hover:text-white";
+            } else {
+                localBtn.className = "px-2.5 py-1 rounded-[18px] text-[11px] font-bold transition-all bg-[#1a64a0] text-white";
+                demoBtn.className = "px-2.5 py-1 rounded-[18px] text-[11px] font-bold transition-all text-zinc-400 hover:text-white";
+            }
+
             setTimeout(() => {
                 const loader = document.getElementById('skeleton-loader');
                 if(loader) loader.classList.add('hidden');
@@ -526,11 +542,10 @@
             setupProgressBarEvents();
         };
 
-        // Scroll action logic to auto hide navigation
         function setupAutoHideMenu() {
             let lastScrollTop = 0;
             const bottomNav = document.getElementById('bottom-nav');
-            
+
             window.addEventListener('scroll', function() {
                 let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 if (scrollTop > lastScrollTop && scrollTop > 80) {
@@ -544,7 +559,6 @@
             }, false);
         }
 
-        // Full screen player controller map
         function setupKeyboardControls() {
             document.addEventListener('keydown', function(e) {
                 const lightbox = document.getElementById('video-lightbox');
@@ -576,7 +590,7 @@
             const currentDate = new Date("2026-07-01");
             const differenceInTime = currentDate.getTime() - uploadDate.getTime();
             const differenceInDays = Math.floor(differenceInTime / (1000 * 3600 * 24));
-            
+
             if (differenceInDays <= 0) {
                 return "Bugün yüklənib";
             } else if (differenceInDays === 1) {
@@ -621,20 +635,19 @@
                 const isFavorite = favorites.includes(video.id);
                 const isWatched = watched.includes(video.id);
                 const daysAgoStr = getDaysAgoString(video.uploadDate);
-                
+
                 let tagBadgesMarkup = video.tags.map(tag => {
-                    const style = tagStyles[tag] || defaultTagStyle;
+                    const style = getTagStyle(tag);
                     return `<span onclick="filterByTag('${tag}', event)" class="px-2.5 py-1 rounded-[18px] text-[9px] font-bold tracking-wide uppercase cursor-pointer border ${style.bg} ${style.border} ${style.text} hover:scale-105 transition-transform duration-200">${tag}</span>`;
                 }).join('');
 
                 const videoCard = document.createElement('div');
-                // Customized precisely to user requested GitHub Dark color scheme: Card: #161b22, Rounded: 18px
                 videoCard.className = 'bg-[#161b22] border border-[#21262d] rounded-[18px] p-4 space-y-3.5 hover:border-[#30363d] transition-all duration-300 shadow-md group overflow-hidden';
                 videoCard.innerHTML = `
                     <div onclick="openLightbox('${video.id}')" class="relative aspect-video rounded-[18px] overflow-hidden cursor-pointer group bg-[#0d1117] shadow-inner">
                         <img src="${video.thumbnail}" alt="${video.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" onerror="this.src='https://placehold.co/600x400/161b22/ffffff?text=K.A.D.R'">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-85 group-hover:opacity-40 transition-opacity"></div>
-                        
+
                         <div class="absolute top-3 left-3 flex gap-1.5">
                             ${isWatched ? `
                                 <span class="px-2 py-0.5 bg-emerald-600/90 backdrop-blur text-white text-[9px] font-black rounded-[18px] shadow-lg flex items-center gap-0.5 animate-pulse">
@@ -688,18 +701,18 @@
             container.innerHTML = '';
 
             const tagCounts = {};
-            Object.keys(tagStyles).forEach(tag => tagCounts[tag] = 0);
-            
             videosDatabase.forEach(video => {
                 video.tags.forEach(tag => {
                     tagCounts[tag] = (tagCounts[tag] || 0) + 1;
                 });
             });
 
-            Object.keys(tagStyles).forEach(tag => {
-                const count = tagCounts[tag] || 0;
-                const style = tagStyles[tag];
-                
+            const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]);
+
+            sortedTags.forEach(tag => {
+                const count = tagCounts[tag];
+                const style = getTagStyle(tag);
+
                 const card = document.createElement('div');
                 card.onclick = () => {
                     filterByTag(tag);
@@ -709,7 +722,7 @@
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
                         <span class="text-xl group-hover:scale-110 transition-transform duration-300">
-                            ${tag === 'film-edit' ? '🎬' : tag === 'couple-edit' ? '❤️' : tag === 'crush-list' ? '⭐' : '🎨'}
+                            ${style.icon}
                         </span>
                         <span class="text-[9px] font-extrabold ${style.text} px-2.5 py-0.5 rounded-full ${style.bg} border ${style.border}">
                             ${count} Video
@@ -728,8 +741,10 @@
             const container = document.getElementById('search-tag-suggestions');
             container.innerHTML = '';
 
-            Object.keys(tagStyles).forEach(tag => {
-                const style = tagStyles[tag];
+            const uniqueTags = [...new Set(videosDatabase.flatMap(v => v.tags))];
+
+            uniqueTags.forEach(tag => {
+                const style = getTagStyle(tag);
                 const pill = document.createElement('button');
                 pill.onclick = () => {
                     document.getElementById('search-input').value = tag;
@@ -768,8 +783,8 @@
 
             let matches = [...videosDatabase];
             if (searchQuery.length > 0) {
-                matches = matches.filter(video => 
-                    video.title.toLowerCase().includes(searchQuery) || 
+                matches = matches.filter(video =>
+                    video.title.toLowerCase().includes(searchQuery) ||
                     video.tags.some(tag => tag.toLowerCase().includes(searchQuery))
                 );
                 heading.innerText = `Axtarış Nəticələri (${matches.length})`;
@@ -827,7 +842,7 @@
             navs.forEach(nav => {
                 const btn = document.getElementById(`nav-${nav}`);
                 const bg = document.getElementById(`nav-icon-${nav}-bg`);
-                
+
                 if (nav === tabId) {
                     btn.className = "flex flex-col items-center gap-1 group text-[#b01a2e] transition-colors";
                     bg.className = "w-10 h-10 rounded-[18px] flex items-center justify-center transition-all bg-[#b01a2e]/10 scale-105";
@@ -864,9 +879,9 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
+
             const colorClass = type === 'success' ? 'border-[#257a3e]/30 text-[#257a3e] bg-[#257a3e]/10' : 'border-[#b01a2e]/30 text-[#b01a2e] bg-[#b01a2e]/10';
-            
+
             toast.className = `glass p-3 rounded-[18px] text-[11px] font-bold flex items-center gap-2 shadow-2xl animate-scale-up border ${colorClass}`;
             toast.innerHTML = `
                 <span>${type === 'success' ? '💡' : '⚡'}</span>
@@ -914,7 +929,7 @@
             if (activeVideoIndex === -1) return;
 
             activeVideo = videosDatabase[activeVideoIndex];
-            
+
             const lightbox = document.getElementById('video-lightbox');
             const videoElement = document.getElementById('main-video-player');
             const source = document.getElementById('video-source');
@@ -923,14 +938,14 @@
 
             source.src = activeVideo.file;
             videoElement.load();
-            
+
             document.getElementById('player-title').innerText = activeVideo.title;
             document.getElementById('player-blur-bg').style.backgroundImage = `url('${activeVideo.thumbnail}')`;
             document.getElementById('player-days-ago').innerText = getDaysAgoString(activeVideo.uploadDate);
 
             const tagsCont = document.getElementById('player-tags');
             tagsCont.innerHTML = activeVideo.tags.map(tag => {
-                const style = tagStyles[tag] || defaultTagStyle;
+                const style = getTagStyle(tag);
                 return `<span class="px-2.5 py-1 rounded-[18px] text-[9px] font-bold uppercase tracking-wider border ${style.bg} ${style.border} ${style.text}">${tag}</span>`;
             }).join('');
 
@@ -953,7 +968,7 @@
         function closeLightbox() {
             const lightbox = document.getElementById('video-lightbox');
             const videoElement = document.getElementById('main-video-player');
-            
+
             videoElement.pause();
             lightbox.classList.add('opacity-0');
             setTimeout(() => {
@@ -1033,7 +1048,7 @@
             const rect = container.getBoundingClientRect();
             const clickX = event.clientX - rect.left;
             const percentage = clickX / rect.width;
-            
+
             if (video.duration) {
                 video.currentTime = percentage * video.duration;
             }
@@ -1092,7 +1107,7 @@
             if (!video) return;
 
             const fakeUrl = `${window.location.origin}${window.location.pathname}?video=${video.id}`;
-            
+
             const el = document.createElement('textarea');
             el.value = fakeUrl;
             document.body.appendChild(el);
@@ -1144,16 +1159,16 @@
                     "tags": ["film-edit", "couple-edit"]
                 },
                 {
-                    "title": "Crush List",
-                    "file": "videos/edit2.mp4",
-                    "thumbnail": "thumbnails/edit2.jpg",
-                    "tags": ["crush-list"]
+                    "title": "Arcane Season Edit",
+                    "file": "videos/arcane.mp4",
+                    "thumbnail": "thumbnails/edit1.jpg",
+                    "tags": ["film-edit", "arcane"]
                 },
                 {
-                    "title": "Epic Movie Cut",
-                    "file": "videos/movie.mp4",
-                    "thumbnail": "thumbnails/edit1.jpg",
-                    "tags": ["film-edit", "normal-edit"]
+                    "title": "Obsession Moment",
+                    "file": "videos/obsession.mp4",
+                    "thumbnail": "thumbnails/edit2.jpg",
+                    "tags": ["film-edit", "obsession"]
                 }
             ];
 
