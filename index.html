@@ -990,7 +990,16 @@
 
             markAsWatched(activeVideo.id);
 
+            // Reset previous listeners/state so retries don't stack up
+            videoElement.oncanplay = null;
+            videoElement.onerror = null;
+            videoElement.pause();
+            videoElement.muted = false;
+            isMuted = false;
+            updateMuteUI();
+
             source.src = activeVideo.file;
+            videoElement.preload = 'auto';
             videoElement.load();
 
             document.getElementById('player-title').innerText = activeVideo.title;
@@ -1007,22 +1016,55 @@
             document.getElementById('player-watched-badge').classList.remove('hidden');
 
             lightbox.classList.remove('hidden');
-            setTimeout(() => {
-                lightbox.classList.remove('opacity-0');
-                videoElement.play().catch(() => {
+            lightbox.classList.remove('opacity-0');
+
+            // Try to play immediately (keeps the click's user-gesture context alive,
+            // which is what lets browsers autoplay WITH sound).
+            attemptPlayWithSound(videoElement);
+
+            // Safety net: if the video hasn't started within a moment (slow network,
+            // not buffered yet, etc.) retry once it's actually ready, and warn the
+            // user if it truly fails to load.
+            videoElement.oncanplay = () => {
+                if (videoElement.paused) {
+                    attemptPlayWithSound(videoElement);
+                }
+            };
+            videoElement.onerror = () => {
+                showToast('Video yüklənmədi, yenidən cəhd edilir...', 'error');
+                setTimeout(() => {
+                    videoElement.load();
+                }, 600);
+            };
+        }
+
+        function attemptPlayWithSound(videoElement) {
+            const playPromise = videoElement.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    updatePlayUI(true);
+                }).catch(() => {
+                    // Browser blocked unmuted autoplay (or video wasn't ready yet) —
+                    // fall back to muted playback so the video still opens/plays,
+                    // then let the user tap the speaker icon to unmute.
                     videoElement.muted = true;
                     isMuted = true;
                     updateMuteUI();
-                    videoElement.play();
+                    videoElement.play().then(() => {
+                        updatePlayUI(true);
+                    }).catch(() => {
+                        // Still failing — likely still buffering, oncanplay handler above will retry.
+                    });
                 });
-                updatePlayUI(true);
-            }, 50);
+            }
         }
 
         function closeLightbox() {
             const lightbox = document.getElementById('video-lightbox');
             const videoElement = document.getElementById('main-video-player');
 
+            videoElement.oncanplay = null;
+            videoElement.onerror = null;
             videoElement.pause();
             lightbox.classList.add('opacity-0');
             setTimeout(() => {
