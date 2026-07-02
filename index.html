@@ -78,11 +78,11 @@
         .feed-slide { scroll-snap-align: start; scroll-snap-stop: always; }
     </style>
 </head>
-<body class="bg-[#0d1117] text-zinc-100 min-h-screen font-sans flex flex-col justify-between overflow-x-hidden selection:bg-rose-500/20 selection:text-rose-200">
+<body class="bg-[#0d1117] text-zinc-100 h-screen font-sans flex flex-col overflow-hidden selection:bg-rose-500/20 selection:text-rose-200">
 
     <div id="toast-container" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex flex-col items-center gap-2"></div>
 
-    <div class="w-full max-w-lg mx-auto min-h-screen flex flex-col relative pb-28 shadow-[0_0_80px_rgba(0,0,0,0.6)] border-x border-[#21262d] bg-[#0d1117]">
+    <div class="w-full max-w-lg mx-auto h-screen flex flex-col relative shadow-[0_0_80px_rgba(0,0,0,0.6)] border-x border-[#21262d] bg-[#0d1117]">
 
         <header class="sticky top-0 z-40 glass px-5 py-3.5 flex items-center justify-between transition-all duration-300">
             <div class="logo-header text-xl cursor-pointer" onclick="switchTab('home'); clearTagFilter();">
@@ -183,7 +183,7 @@
                 </div>
             </section>
 
-            <section id="tab-search" class="hidden p-4 space-y-5 animate-slide-up overflow-y-auto h-full">
+            <section id="tab-search" class="hidden p-4 pb-28 space-y-5 animate-slide-up overflow-y-auto h-full">
                 <div class="space-y-3">
                     <h2 class="text-lg font-black tracking-tight text-zinc-100 flex items-center gap-2">
                         <span>🔍</span> Video Axtarın
@@ -212,7 +212,7 @@
                 </div>
             </section>
 
-            <section id="tab-tags" class="hidden p-4 space-y-5 animate-slide-up overflow-y-auto h-full">
+            <section id="tab-tags" class="hidden p-4 pb-28 space-y-5 animate-slide-up overflow-y-auto h-full">
                 <div class="space-y-1">
                     <h2 class="text-lg font-black tracking-tight text-zinc-100 flex items-center gap-2">
                         <span>📂</span> Bütün Kateqoriyalar
@@ -523,19 +523,33 @@
         function setupKeyboardControls() {
             document.addEventListener('keydown', function(e) {
                 const lightbox = document.getElementById('video-lightbox');
-                if (lightbox.classList.contains('hidden')) return;
+                const lightboxOpen = !lightbox.classList.contains('hidden');
 
-                if (e.code === 'Space') {
+                if (lightboxOpen) {
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        togglePlay();
+                    } else if (e.code === 'ArrowRight') {
+                        nextVideo(e);
+                    } else if (e.code === 'ArrowLeft') {
+                        prevVideo(e);
+                    } else if (e.code === 'Escape') {
+                        closeLightbox();
+                    }
+                    return;
+                }
+
+                if (currentTab === 'home' && (e.code === 'ArrowDown' || e.code === 'ArrowUp')) {
                     e.preventDefault();
-                    togglePlay();
-                } else if (e.code === 'ArrowRight') {
-                    nextVideo(e);
-                } else if (e.code === 'ArrowLeft') {
-                    prevVideo(e);
-                } else if (e.code === 'Escape') {
-                    closeLightbox();
+                    scrollFeedBy(e.code === 'ArrowDown' ? 1 : -1);
                 }
             });
+        }
+
+        function scrollFeedBy(direction) {
+            const grid = document.getElementById('video-grid');
+            if (!grid || grid.classList.contains('hidden')) return;
+            grid.scrollBy({ top: direction * grid.clientHeight, behavior: 'smooth' });
         }
 
         function renderApp() {
