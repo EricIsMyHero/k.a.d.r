@@ -110,7 +110,7 @@
         <div id="dev-suite" class="hidden fixed inset-x-0 top-[58px] max-w-lg mx-auto z-40 bg-[#161b22]/98 border-b border-[#21262d] p-5 animate-slide-up backdrop-blur-xl max-h-[82vh] overflow-y-auto no-scrollbar">
             <h3 class="text-xs font-bold uppercase tracking-wider text-rose-500 mb-2">⚡ Cloudflare R2 + Supabase Hibrid CMS</h3>
             <p class="text-[11px] text-zinc-400 mb-4 leading-relaxed">
-                Videoları pulsuz saxlamaq üçün <strong>Cloudflare R2</strong> (10GB Pulsuz, Sıfır Trafik haqqı) və verilənlər bazası üçün <strong>Supabase</strong> istifadə edin. Bu, minlərlə video üçün ən optimal və sərfəli həlldir.
+                Videoları pulsuz saxlamaq üçün <strong>Cloudflare R2</strong> (10GB Pulsuz, Sıfır Trafik haqqı) və verilənlər bazası üçün <strong>Supabase</strong> istifadə olunur. Bu, minlərlə video üçün ən optimal və sərfəli həlldir.
             </p>
 
             <!-- SQL Cədvəl strukturu -->
@@ -123,7 +123,7 @@
 create table public.videos (
   id uuid default gen_random_uuid() primary key,
   title text not null,
-  file text not null, -- Bura Cloudflare linki və ya qovluq yolu yazılacaq
+  file text not null, -- Bura Cloudflare qovluq yolu yazılacaq (məs: videos-of-my-favorites/obsession/normal-edit-1.mp4)
   tags text[] not null default '{}',
   uploadDate date not null default current_date
 );</pre>
@@ -137,7 +137,7 @@ create table public.videos (
                 <div class="space-y-2 text-xs">
                     <input type="text" id="supabase-url-input" placeholder="Supabase Project URL (məs: https://xxx.supabase.co)" class="w-full bg-[#161b22] border border-[#21262d] rounded-lg p-2 font-mono text-zinc-300 focus:outline-none focus:border-rose-500">
                     <input type="password" id="supabase-key-input" placeholder="Supabase Anon API Key" class="w-full bg-[#161b22] border border-[#21262d] rounded-lg p-2 font-mono text-zinc-300 focus:outline-none focus:border-rose-500">
-                    <input type="text" id="r2-public-url" placeholder="R2 və ya Cloudflare Public Bucket URL (məs: https://pub-xxx.r2.dev)" class="w-full bg-[#161b22] border border-[#21262d] rounded-lg p-2 font-mono text-zinc-300 focus:outline-none focus:border-rose-500">
+                    <input type="text" id="r2-public-url" placeholder="R2 Public Bucket URL (məs: https://pub-xxx.r2.dev)" class="w-full bg-[#161b22] border border-[#21262d] rounded-lg p-2 font-mono text-zinc-300 focus:outline-none focus:border-rose-500">
                 </div>
                 <div class="flex justify-between items-center mt-3">
                     <span id="supabase-status-badge" class="text-[9px] text-rose-400 font-bold">Qoşulmayıb (Demo Rejimi)</span>
@@ -147,11 +147,11 @@ create table public.videos (
                 </div>
             </div>
 
+            <!-- Yeni Video Əlavəetmə Formu -->
             <div id="cms-video-form-container" class="bg-[#0d1117] p-3 rounded-[18px] border border-[#21262d] mb-4 opacity-50 pointer-events-none">
                 <h4 class="text-xs font-bold text-zinc-300 mb-2">📥 Yeni Cloudflare Videosu Əlavə Et</h4>
                 <div class="space-y-2 text-xs">
                     <input type="text" id="add-video-title" placeholder="Video Başlığı (məs: Obsession Edit)" class="w-full bg-[#161b22] border border-[#21262d] p-2.5 rounded-lg text-zinc-300 placeholder-zinc-600 focus:outline-none">
-                    
                     <input type="text" id="add-video-url" placeholder="Video yolu (məs: videos-of-my-favorites/obsession/normal-edit-1.mp4)" class="w-full bg-[#161b22] border border-[#21262d] p-2.5 rounded-lg text-zinc-300 placeholder-zinc-600 focus:outline-none">
                     <input type="text" id="add-video-tags" placeholder="Taglər (vergüllə: film-edit, obsession, couple-edit)" class="w-full bg-[#161b22] border border-[#21262d] p-2.5 rounded-lg text-zinc-300 placeholder-zinc-600 focus:outline-none">
                     
@@ -175,6 +175,7 @@ create table public.videos (
 
             <section id="tab-home" class="relative h-full">
 
+                <!-- Filtrləmə paneli -->
                 <div class="absolute top-3 inset-x-3 z-20 space-y-2 pointer-events-none">
                     <div class="pointer-events-auto flex items-center justify-center gap-1.5 glass p-1.5 rounded-[18px] border border-[#21262d] w-fit mx-auto">
                         <button onclick="changeSort('foryou')" id="btn-sort-foryou" class="px-3 py-1.5 rounded-[18px] text-xs font-bold transition-all bg-[#0d1117] text-[#b01a2e] border border-[#b01a2e]/20 shadow-lg">
@@ -198,6 +199,7 @@ create table public.videos (
                     </div>
                 </div>
 
+                <!-- Yüklənmə skelet ekranı -->
                 <div id="skeleton-loader" class="h-full flex items-center justify-center px-6">
                     <div class="w-full max-w-xs bg-[#161b22] border border-[#21262d] rounded-[18px] p-4 space-y-4 animate-pulse">
                         <div class="aspect-[9/16] bg-[#30363d] rounded-[18px]"></div>
@@ -205,8 +207,10 @@ create table public.videos (
                     </div>
                 </div>
 
+                <!-- Əsas video feed sahəsi -->
                 <div id="video-grid" class="hidden h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar"></div>
 
+                <!-- Boş ekran vəziyyəti -->
                 <div id="empty-state" class="hidden h-full flex flex-col items-center justify-center text-center space-y-4 px-6">
                     <div class="w-16 h-16 bg-[#161b22] rounded-full flex items-center justify-center mx-auto border border-[#21262d] text-zinc-500 text-2xl">
                         🎬
@@ -218,6 +222,7 @@ create table public.videos (
                 </div>
             </section>
 
+            <!-- Axtarış ekranı -->
             <section id="tab-search" class="hidden p-4 pb-28 space-y-5 animate-slide-up overflow-y-auto h-full">
                 <div class="space-y-3">
                     <h2 class="text-lg font-black tracking-tight text-zinc-100 flex items-center gap-2">
@@ -247,6 +252,7 @@ create table public.videos (
                 </div>
             </section>
 
+            <!-- Kateqoriyalar ekranı -->
             <section id="tab-tags" class="hidden p-4 pb-28 space-y-5 animate-slide-up overflow-y-auto h-full">
                 <div class="space-y-1">
                     <h2 class="text-lg font-black tracking-tight text-zinc-100 flex items-center gap-2">
@@ -296,6 +302,7 @@ create table public.videos (
 
         <div class="relative w-full max-w-lg h-full max-h-screen flex flex-col justify-between items-center z-10 py-6 px-4">
 
+            <!-- Üst idarəetmə hissəsi -->
             <div class="w-full flex items-center justify-between glass px-4 py-3 rounded-[18px] border border-white/5 z-20">
                 <button onclick="closeLightbox()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-white">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -318,6 +325,7 @@ create table public.videos (
                 </div>
             </div>
 
+            <!-- Video çarçivə sahəsi -->
             <div class="w-full flex-1 flex items-center justify-center relative my-4">
                 <div class="relative max-w-full max-h-[70vh] bg-black/40 rounded-[18px] overflow-hidden border border-white/5 flex items-center justify-center group" id="video-wrapper" style="aspect-ratio: 9 / 16;">
                     
@@ -349,6 +357,7 @@ create table public.videos (
                 </div>
             </div>
 
+            <!-- Alt tənzimləmələr paneli -->
             <div class="w-full glass p-4 rounded-[18px] border border-white/5 space-y-3.5 z-20">
                 <div class="space-y-1">
                     <div class="relative w-full h-1 bg-zinc-800 rounded-full overflow-hidden cursor-pointer" id="progress-container" onclick="seekVideo(event)">
@@ -388,6 +397,7 @@ create table public.videos (
                 <div id="player-tags" class="flex flex-wrap gap-1.5 pt-1"></div>
             </div>
 
+            <!-- Klaviatura təlimatları -->
             <div class="text-center text-[9px] text-zinc-500 font-bold flex items-center gap-3">
                 <span>← Sol ox (Əvvəlki)</span>
                 <span>• Space (Dayandır) •</span>
@@ -397,7 +407,6 @@ create table public.videos (
     </div>
 
     <script>
-        // Sizin Cloudflare-ə yüklədiyiniz yeni videolar artıq ana verilənlər bazası kimi təyin olundu
         window.demoVideos = [
             {
                 "id": "vid-obsession-1",
@@ -440,6 +449,7 @@ create table public.videos (
         let supabaseClient = null;
         let isSupabaseInitialized = false;
 
+        // Xüsusi kateqoriya və tag üslubları
         const tagStyles = {
             "film-edit": { bg: "bg-[#161b22]", border: "border-[#b01a2e]/30", text: "text-[#b01a2e]", label: "🎬 Film Edit", icon: "🎬", glow: "shadow-[#b01a2e]/5" },
             "couple-edit": { bg: "bg-[#161b22]", border: "border-[#1a64a0]/30", text: "text-[#1a64a0]", label: "❤️ Couple Edit", icon: "❤️", glow: "shadow-[#1a64a0]/5" },
@@ -484,13 +494,10 @@ create table public.videos (
             if (file.startsWith('http://') || file.startsWith('https://')) {
                 return file;
             }
-            // Nisbi (relative) linkdirsə R2 bazasını və ya nisbi qovluğu yoxla
-            const savedR2Url = localStorage.getItem('kadr_r2_url');
-            if (savedR2Url) {
-                const base = savedR2Url.endsWith('/') ? savedR2Url : `${savedR2Url}/`;
-                return `${base}${file}`;
-            }
-            return `./${file}`;
+            // Əgər istifadəçi lokal olaraq R2 bucket linkini konfiqurasiya etməyibsə, sizin R2 bucketiniz standart seçilir
+            const savedR2Url = localStorage.getItem('kadr_r2_url') || 'https://pub-27954f88972e4cb884b6ec66cbf3ad0a.r2.dev';
+            const base = savedR2Url.endsWith('/') ? savedR2Url : `${savedR2Url}/`;
+            return `${base}${file}`;
         };
 
         window.onload = async function() {
@@ -501,11 +508,10 @@ create table public.videos (
 
             const savedUrl = localStorage.getItem('kadr_supabase_url');
             const savedKey = localStorage.getItem('kadr_supabase_key');
-            const savedR2Url = localStorage.getItem('kadr_r2_url');
+            // Əgər quraşdırılmış R2 URL yoxdursa, təqdim etdiyiniz default link daxil edilir
+            const savedR2Url = localStorage.getItem('kadr_r2_url') || 'https://pub-27954f88972e4cb884b6ec66cbf3ad0a.r2.dev';
 
-            if (savedR2Url) {
-                document.getElementById('r2-public-url').value = savedR2Url;
-            }
+            document.getElementById('r2-public-url').value = savedR2Url;
 
             if (savedUrl && savedKey) {
                 document.getElementById('supabase-url-input').value = savedUrl;
@@ -1221,7 +1227,7 @@ create table public.videos (
             window.isMuted = false;
             updateMuteUI();
 
-            // Sizin Cloudflare-dəki videonun linkini həll edərək playerə təyin edirik
+            // Sizin Cloudflare R2 bazanızdan gələn video birbaşa oxunur
             videoElement.src = window.getVideoUrl(window.activeVideo.file);
             videoElement.preload = 'auto';
             videoElement.load();
