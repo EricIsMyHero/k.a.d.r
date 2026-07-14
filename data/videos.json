@@ -2,7 +2,7 @@
     {
         "id": "local-1",
         "title": "Obsession Edit",
-        "file": "videos/obsession/normal-edit-1.mp4",
+        "file": "obsession/normal-edit-1.mp4",
         "tags": [
             "film-edit",
             "obsession"
@@ -12,7 +12,7 @@
     {
         "id": "local-2",
         "title": "Obsession Edit",
-        "file": "videos/obsession/normal-edit-2.mp4",
+        "file": "obsession/normal-edit-2.mp4",
         "tags": [
             "film-edit",
             "obsession"
@@ -22,7 +22,7 @@
     {
         "id": "local-3",
         "title": "Obsession Edit",
-        "file": "videos/obsession/normal-edit-3.mp4",
+        "file": "obsession/normal-edit-3.mp4",
         "tags": [
             "film-edit",
             "obsession"
@@ -32,7 +32,7 @@
     {
         "id": "local-4",
         "title": "Obsession Edit",
-        "file": "videos/obsession/normal-edit-4.mp4",
+        "file": "obsession/normal-edit-4.mp4",
         "tags": [
             "film-edit",
             "obsession"
@@ -42,7 +42,7 @@
     {
         "id": "local-5",
         "title": "Obsession Edit",
-        "file": "videos/obsession/crush-list-1.mp4",
+        "file": "obsession/crush-list-1.mp4",
         "tags": [
             "film-edit",
             "crush-list",
@@ -53,7 +53,7 @@
     {
         "id": "local-6",
         "title": "The Amazing Digital Circus Edit",
-        "file": "videos/the-amazing-digital-circus/couple-edit-1.mp4",
+        "file": "the-amazing-digital-circus/couple-edit-1.mp4",
         "tags": [
             "film-edit",
             "the-amazing-digital-circus",
@@ -64,7 +64,7 @@
     {
         "id": "local-7",
         "title": "The Amazing Digital Circus Edit",
-        "file": "videos/the-amazing-digital-circus/couple-edit-2.mp4",
+        "file": "the-amazing-digital-circus/couple-edit-2.mp4",
         "tags": [
             "film-edit",
             "the-amazing-digital-circus",
@@ -75,7 +75,7 @@
     {
         "id": "local-8",
         "title": "The Amazing Digital Circus Edit",
-        "file": "videos/the-amazing-digital-circus/normal-edit-1.mp4",
+        "file": "the-amazing-digital-circus/normal-edit-1.mp4",
         "tags": [
             "film-edit",
             "the-amazing-digital-circus"
@@ -85,7 +85,7 @@
     {
         "id": "local-9",
         "title": "The Amazing Digital Circus Edit",
-        "file": "videos/the-amazing-digital-circus/normal-edit-2.mp4",
+        "file": "the-amazing-digital-circus/normal-edit-2.mp4",
         "tags": [
             "film-edit",
             "the-amazing-digital-circus"
@@ -95,7 +95,7 @@
     {
         "id": "local-10",
         "title": "The Amazing Digital Circus Edit",
-        "file": "videos/the-amazing-digital-circus/normal-edit-3.mp4",
+        "file": "the-amazing-digital-circus/normal-edit-3.mp4",
         "tags": [
             "film-edit",
             "the-amazing-digital-circus"
@@ -105,7 +105,7 @@
     {
         "id": "local-11",
         "title": "Toy Story Edit",
-        "file": "videos/toy-story/couple-edit-1.mp4",
+        "file": "toy-story/couple-edit-1.mp4",
         "tags": [
             "film-edit",
             "toy-story",
@@ -116,7 +116,7 @@
     {
         "id": "local-12",
         "title": "Toy Story Edit",
-        "file": "videos/toy-story/normal-edit-1.mp4",
+        "file": "toy-story/normal-edit-1.mp4",
         "tags": [
             "film-edit",
             "toy-story"
@@ -126,7 +126,7 @@
     {
         "id": "local-13",
         "title": "From Edit",
-        "file": "videos/from/couple-edit-1.mp4",
+        "file": "from/couple-edit-1.mp4",
         "tags": [
             "film-edit",
             "from",
@@ -137,7 +137,7 @@
     {
         "id": "local-14",
         "title": "Rick and Morty Edit",
-        "file": "videos/rick-and-morty/normal-edit-1.mp4",
+        "file": "rick-and-morty/normal-edit-1.mp4",
         "tags": [
             "film-edit",
             "rick-and-morty"
