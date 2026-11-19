@@ -205,11 +205,6 @@ function createPlayer(item, modal = false) {
   p.syncMute();
   video.onclick = () => { if (!video.controls) toggle.click(); };
   video.onloadedmetadata = () => {
-    const ratio = video.videoWidth / video.videoHeight;
-    if (Number.isFinite(ratio) && ratio > 1.2) {
-      el.classList.add('is-wide');
-      stage.style.setProperty('--video-ratio', ratio);
-    }
     if (p.pendingTime) p.seekTo(p.pendingTime);
     p.pendingTime = 0;
     updateTime();
