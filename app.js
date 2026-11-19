@@ -67,7 +67,10 @@ function createPlayer(item, modal = false) {
   video.loop = true;
   video.preload = 'none';
   video.muted = state.muted;
+  video.draggable = false;
+  video.setAttribute('controlslist', 'nodownload');
   video.setAttribute('aria-label', item.title);
+  stage.addEventListener('contextmenu', event => event.preventDefault());
   if (item.poster) video.poster = url(item.poster);
   const status = node('div', 'status');
   status.hidden = true;
@@ -266,7 +269,7 @@ function renderCards(container,list,message){container.replaceChildren();if(!lis
 function allTags(){return [...new Set(state.videos.flatMap(v=>v.tags))].sort((a,b)=>a.localeCompare(b,'az'));}
 function renderSearch(){const q=$('#search').value.trim().toLocaleLowerCase('az');const list=state.videos.filter(v=>[v.title,...v.tags.map(label),...v.tags].some(t=>t.toLocaleLowerCase('az').includes(q)));$('#results-count').textContent=`${list.length} video`;renderCards($('#search-results'),list,'Axtarışa uyğun video tapılmadı. Başqa söz yoxla.');}
 function renderLibrary(){const c=$('#library-results');if(state.library==='tags'){c.replaceChildren();allTags().forEach(tag=>{const n=state.videos.filter(v=>v.tags.includes(tag)).length;const b=button('','card tag-card',()=>{state.tag=tag;state.sort='random';updateSort();switchTab('feed');renderFeed();});b.append(icon('layout-grid'),node('strong','',label(tag)),node('small','',`${n} video`));c.append(b);});if(!c.children.length)c.append(node('p','empty','Hələ kateqoriya yoxdur.'));}else{const ids=state[state.library==='favorites'?'favorites':'watched'];const list=ids.map(id=>state.videos.find(v=>v.id===id)).filter(Boolean);renderCards(c,list,state.library==='favorites'?'Bəyəndiyin kadrları ürək düyməsi ilə burada saxla.':'İzlədiyin videolar burada görünəcək.');}}
-function switchTab(tab){pauseAll();state.tab=tab;for(const t of ['feed','search','library']){ $(`#${t}-view`).hidden=t!==tab;$(`[data-tab="${t}"]`).classList.toggle('active',t===tab);$(`[data-tab="${t}"]`).setAttribute('aria-current',t===tab?'page':'false');}$('#page-title').replaceChildren(document.createTextNode({feed:'Öz dünyana bax',search:'Növbəti kadrı tap',library:'Sənin seçdiklərin'}[tab]),node('span','','.'));if(tab==='search')renderSearch();if(tab==='library')renderLibrary();if(tab==='feed'&&state.active&&!state.active.manualPause)play(state.active);}
+function switchTab(tab){pauseAll();state.tab=tab;for(const t of ['feed','search','library']){ $(`#${t}-view`).hidden=t!==tab;$(`[data-tab="${t}"]`).classList.toggle('active',t===tab);$(`[data-tab="${t}"]`).setAttribute('aria-current',t===tab?'page':'false');}if(tab==='search')renderSearch();if(tab==='library')renderLibrary();if(tab==='feed'&&state.active&&!state.active.manualPause)play(state.active);}
 function updateSort(){$$('[data-sort]').forEach(b=>{b.classList.toggle('active',b.dataset.sort===state.sort);b.setAttribute('aria-pressed',String(b.dataset.sort===state.sort));});}
 function openPlayer(id, queue, origin = null) {
   const index = queue.findIndex(v => v.id === id);
